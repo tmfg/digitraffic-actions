@@ -1,0 +1,37 @@
+name: 'ECS Service Update action'
+description: 'Updates ECS Service'
+inputs:
+  ci-repo-branch:
+    description: 'Branch or tag of CI-repo'
+    required: true
+  family-name:
+    description: 'Task family name(e.g. marine-test-daemon)'
+    required: true
+  ssh-private-key:
+    description: 'Private key'
+    required: true
+  asw-role:
+    description: 'AWS Role to assume'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Print parameters
+      run: echo Updating fargate service task ${{ inputs.family-name }} from ci branch ${{ inputs.ci-repo-branch }}
+      shell: bash
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ secrets.CI_REPO_URL }}
+        ssh-key: ${{ secrets.DEPENDENCY_SSH_KEY }}
+        ref: ${{ inputs.ci-repo-branch }}
+        path: digitraffic-ci
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: ${{ inputs.aws-role }}
+        role-session-name: gh-actions-update-ecs-history-${{ inputs.family-name }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    - name: Update task definition
+      run: aws ecs register-task-definition --family ${{ inputs.family-name }} --cli-input-json file://digitraffic-ci/aws/task-def/${{ inputs.family-name }}-task-def.json} ${getRegionParameter()}
+      shell: bash
