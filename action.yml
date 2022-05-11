@@ -1,0 +1,16 @@
+name: 'Mirror action'
+description: 'Mirror changes to another repository'
+inputs:
+  mirror-repo:
+    description: 'Mirroring to'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    - run: git push --mirror ${{ inputs.mirror-repo }}
