@@ -17,3 +17,4 @@ runs:
       with:
         ssh-private-key: ${{ inputs.ssh-private-key }}
     - run: git push --mirror ${{ inputs.mirror-repo }}
+      shell: bash
