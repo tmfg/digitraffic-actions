@@ -10,7 +10,7 @@ Actions are stored in their own branches and thus the main branch doesn't contai
 
 Required parameters:
 * `mirror-repo` defines to which repo to mirror content.
-* `secrets.SSH_PRIVATE_KEY` private key is used to authenticate to the mirror repository.
+* `ssh-private-key` private key is used to authenticate to the mirror repository.
 
 Remember to add the public keypair as a deploy key to the mirror repository
 
@@ -25,4 +25,5 @@ jobs:
         uses: tmfg/digitraffic-actions@mirror/v1
         with:
           mirror-repo: <git+ssh-url>
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 ```

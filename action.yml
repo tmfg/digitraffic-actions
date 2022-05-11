@@ -4,6 +4,9 @@ inputs:
   mirror-repo:
     description: 'Mirroring to'
     required: true
+  ssh-private-key:
+    description: 'Private key'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -12,5 +15,5 @@ runs:
         fetch-depth: 0
     - uses: webfactory/ssh-agent@v0.5.4
       with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        ssh-private-key: ${{ inputs.ssh-private-key }}
     - run: git push --mirror ${{ inputs.mirror-repo }}
