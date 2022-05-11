@@ -7,9 +7,6 @@ inputs:
   family-name:
     description: 'Task family name(e.g. marine-test-daemon)'
     required: true
-  ssh-private-key:
-    description: 'Private key'
-    required: true
   asw-role:
     description: 'AWS Role to assume'
     required: true
@@ -23,7 +20,7 @@ runs:
       uses: actions/checkout@v3
       with:
         repository: ${{ secrets.CI_REPO_URL }}
-        ssh-key: ${{ secrets.DEPENDENCY_SSH_KEY }}
+        ssh-key: ${{ secrets.CI_SSH_KEY }}
         ref: ${{ inputs.ci-repo-branch }}
         path: digitraffic-ci
     - name: Configure AWS credentials
