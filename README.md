@@ -6,6 +6,8 @@ Actions are stored in their own branches and thus the main branch doesn't contai
 
 # Mirror action
 
+Action for mirroring a single branch with tags to another repository.
+
 ## Usage
 
 Required parameters:
@@ -15,7 +17,7 @@ Required parameters:
 
 Remember to add the public keypair as a deploy key to the mirror repository.
 
-**NB:** It is recommended to disable Github Actions in the destination repository
+**NB:** It is recommended to disable Github Actions in the destination repository.
 
 Refer to this project and appropriate branch in your workflow file:
 
@@ -34,6 +36,12 @@ jobs:
         with:
           mirror-repo: <git+ssh-url>
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+```
+
+## Generating ssh deploy keys
+
+```bash
+ssh-keygen -t ed25519 -a 100 -C "mirror key for <repository-name>" -f <repository-name>
 ```
 
 ## Technical stuff
