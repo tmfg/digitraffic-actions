@@ -20,6 +20,11 @@ Remember to add the public keypair as a deploy key to the mirror repository.
 Refer to this project and appropriate branch in your workflow file:
 
 ```yaml
+name: 'Mirror repo to public'
+on:
+  push:
+    branches:
+      - master
 jobs:
   Mirror-action:
     runs-on: ubuntu-latest
