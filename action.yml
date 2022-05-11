@@ -1,6 +1,10 @@
 name: 'Mirror action'
 description: 'Mirror changes to another repository'
 inputs:
+  refspec:
+    description: 'Refspec used in push'
+    required: false
+    default: 'master'
   mirror-repo:
     description: 'Mirroring to'
     required: true
@@ -16,5 +20,5 @@ runs:
     - uses: webfactory/ssh-agent@v0.5.4
       with:
         ssh-private-key: ${{ inputs.ssh-private-key }}
-    - run: git push --mirror ${{ inputs.mirror-repo }}
+    - run: git push --mirror ${{ inputs.mirror-repo }} ${{ inputs.refspec }}
       shell: bash
