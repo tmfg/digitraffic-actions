@@ -2,38 +2,28 @@ name: 'ECS Service Update action'
 description: 'Updates ECS Service'
 
 inputs:
-  ci-repo-branch:
-    description: 'Branch or tag of CI-repo'
+  cluster-name:
+    description: 'Cluster to update'
     required: true
   family-name:
-    description: 'Task family name(e.g. marine-test-daemon)'
+    description: 'Task family name'
     required: true
   asw-role:
     description: 'AWS Role to assume'
     required: true
-  CI_REPO_URL:
-    description: 'CI_REPO_URL secret'
-    required: true
-  CI_SSH_KEY:
-    description: 'CI_SSH_KEY secret'
-    required: true
   AWS_REGION:
     description: 'AWS_REGION secret'
+    required: true
+  revision:
+    description: 'Revision to install'
     required: true
 
 runs:
   using: composite
   steps:
     - name: Print parameters
-      run: echo Updating fargate service task ${{ inputs.family-name }} from ci branch ${{ inputs.ci-repo-branch }}
+      run: echo Updating fargate service task ${{ inputs.family-name }} for cluster ${{ inputs.cluster-name }} region ${{ inputs.AWS_REGION }}
       shell: bash
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        repository: ${{ inputs.CI_REPO_URL }}
-        ssh-key: ${{ inputs.CI_SSH_KEY }}
-        ref: ${{ inputs.ci-repo-branch }}
-        path: digitraffic-ci
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -41,5 +31,11 @@ runs:
         role-session-name: gh-actions-update-ecs-history-${{ inputs.family-name }}
         aws-region: ${{ inputs.AWS_REGION }}
     - name: Update task definition
-      run: aws ecs register-task-definition --family ${{ inputs.family-name }} --cli-input-json file://digitraffic-ci/aws/task-def/${{ inputs.family-name }}-task-def.json} ${getRegionParameter()}
+      run: |
+        aws ecs update-service --cluster ${{ inputs.cluster-name }} \
+          --family ${{ inputs.family-name }} \
+          --service ${{ inputs.family-name }}-service \
+          --task-definition ${{ inputs.family-name }}:${{ inputs.revision }} \
+          --deployment-configuration maximumPercent=200,minimumHealthyPercent=100
+          --region ${{ inputs.AWS_REGION }}}
       shell: bash
