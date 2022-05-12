@@ -1,13 +1,6 @@
 name: 'ECS Service Update action'
 description: 'Updates ECS Service'
 
-secrets:
-  CI_REPO_URL:
-    description: 'CI_REPO_URL secret'
-  CI_SSH_KEY:
-    description: 'CI_SSH_KEY secret'
-  AWS_REGION:
-    description: 'AWS_REGION secret'
 inputs:
   ci-repo-branch:
     description: 'Branch or tag of CI-repo'
@@ -17,6 +10,15 @@ inputs:
     required: true
   asw-role:
     description: 'AWS Role to assume'
+    required: true
+  CI_REPO_URL:
+    description: 'CI_REPO_URL secret'
+    required: true
+  CI_SSH_KEY:
+    description: 'CI_SSH_KEY secret'
+    required: true
+  AWS_REGION:
+    description: 'AWS_REGION secret'
     required: true
 
 runs:
