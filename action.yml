@@ -8,7 +8,7 @@ inputs:
   family-name:
     description: 'Task family name'
     required: true
-  asw-role:
+  aws-role:
     description: 'AWS Role to assume'
     required: true
   aws-region:
@@ -22,7 +22,7 @@ runs:
   using: composite
   steps:
     - name: Print parameters
-      run: echo Updating fargate service task ${{ inputs.family-name }} to revision ${{ inputs.revision }}
+      run: echo Updating ecs service task ${{ inputs.family-name }} to revision ${{ inputs.revision }}
       shell: bash
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -33,7 +33,6 @@ runs:
     - name: Update task definition
       run: |
         aws ecs update-service --cluster ${{ inputs.cluster-name }} \
-          --family ${{ inputs.family-name }} \
           --service ${{ inputs.family-name }}-service \
           --task-definition ${{ inputs.family-name }}:${{ inputs.revision }} \
           --deployment-configuration maximumPercent=200,minimumHealthyPercent=100
