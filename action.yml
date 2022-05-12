@@ -36,5 +36,4 @@ runs:
           --service ${{ inputs.service-name }}-service \
           --task-definition ${{ inputs.service-name }}:${{ inputs.revision }} \
           --deployment-configuration maximumPercent=200,minimumHealthyPercent=100
-          --region ${{ inputs.AWS_REGION }}}
       shell: bash
