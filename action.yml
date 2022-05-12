@@ -11,7 +11,7 @@ inputs:
   asw-role:
     description: 'AWS Role to assume'
     required: true
-  AWS_REGION:
+  aws-region:
     description: 'AWS_REGION secret'
     required: true
   revision:
@@ -22,14 +22,14 @@ runs:
   using: composite
   steps:
     - name: Print parameters
-      run: echo Updating fargate service task ${{ inputs.family-name }} for cluster ${{ inputs.cluster-name }} region ${{ inputs.AWS_REGION }}
+      run: echo Updating fargate service task ${{ inputs.family-name }} to revision ${{ inputs.revision }}
       shell: bash
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         role-to-assume: ${{ inputs.aws-role }}
         role-session-name: gh-actions-update-ecs-history-${{ inputs.family-name }}
-        aws-region: ${{ inputs.AWS_REGION }}
+        aws-region: ${{ inputs.aws-region }}
     - name: Update task definition
       run: |
         aws ecs update-service --cluster ${{ inputs.cluster-name }} \
