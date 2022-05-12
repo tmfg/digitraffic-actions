@@ -30,8 +30,8 @@ runs:
     - name: Checkout
       uses: actions/checkout@v3
       with:
-        repository: ${{ secrets.CI_REPO_URL }}
-        ssh-key: ${{ secrets.CI_SSH_KEY }}
+        repository: ${{ inputs.CI_REPO_URL }}
+        ssh-key: ${{ inputs.CI_SSH_KEY }}
         ref: ${{ inputs.ci-repo-branch }}
         path: digitraffic-ci
     - name: Configure AWS credentials
@@ -39,7 +39,7 @@ runs:
       with:
         role-to-assume: ${{ inputs.aws-role }}
         role-session-name: gh-actions-update-ecs-history-${{ inputs.family-name }}
-        aws-region: ${{ secrets.AWS_REGION }}
+        aws-region: ${{ inputs.AWS_REGION }}
     - name: Update task definition
       run: aws ecs register-task-definition --family ${{ inputs.family-name }} --cli-input-json file://digitraffic-ci/aws/task-def/${{ inputs.family-name }}-task-def.json} ${getRegionParameter()}
       shell: bash
