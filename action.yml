@@ -17,12 +17,15 @@ inputs:
   revision:
     description: 'Revision to install'
     required: false
-    default: 0
+    default: '0'
   desired-count:
     description: 'Desired count of service running'
     required: false
-    type: number
     default: '1'
+  deployment-configuration:
+    description: 'Configuration for deployment'
+    required: false
+    default: 'maximumPercent=200,minimumHealthyPercent=100'
 
 runs:
   using: composite
@@ -32,8 +35,10 @@ runs:
       shell: bash
     - name: Check parameters
       if: inputs.revision == '0' && inputs.desired-count != 0
-      shell: bash
-      run: echo 'You need to give revision when desired-count > 0!' && exit 1
+      uses: actions/github-script@v3
+      with:
+        script: |
+          core.setFailed('You need to give revision when desired-count > 0!')
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -53,6 +58,6 @@ runs:
         aws ecs update-service --cluster ${{ inputs.cluster-name }} \
           --service ${{ inputs.service-name }}-service \
           --task-definition ${{ inputs.service-name }}:${{ inputs.revision }} \
-          --deployment-configuration maximumPercent=200,minimumHealthyPercent=100 \
+          --deployment-configuration ${{ inputs.deployment-configuration }} \
           --desired-count ${{ inputs.desired-count }}
       shell: bash
