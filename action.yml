@@ -31,7 +31,8 @@ runs:
       run: echo Updating ecs service task ${{ inputs.service-name }} to revision ${{ inputs.revision }} with desired count ${{ inputs.desired-count }}
       shell: bash
     - name: Check parameters
-      if: revision == '0' && desired-count != 0
+      if: inputs.revision == '0' && inputs.desired-count != 0
+      shell: bash
       run: echo 'You need to give revision when desired-count > 0!' && exit 1
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -44,8 +45,7 @@ runs:
       run: |
         aws ecs update-service --cluster ${{ inputs.cluster-name }} \
           --service ${{ inputs.service-name }}-service \
-          --deployment-configuration maximumPercent=200,minimumHealthyPercent=100 \
-          --desired-count ${{ inputs.desired-count }}
+          --desired-count 0
       shell: bash
     - name: Update task definition
       if: inputs.desired-count != 0
