@@ -16,24 +16,43 @@ inputs:
     required: true
   revision:
     description: 'Revision to install'
-    required: true
+    required: false
+    default: 0
+  desired-count:
+    description: 'Desired count of service running'
+    required: false
+    type: number
+    default: '1'
 
 runs:
   using: composite
   steps:
     - name: Print parameters
-      run: echo Updating ecs service task ${{ inputs.service-name }} to revision ${{ inputs.revision }}
+      run: echo Updating ecs service task ${{ inputs.service-name }} to revision ${{ inputs.revision }} with desired count ${{ inputs.desired-count }}
       shell: bash
+    - name: Check parameters
+      if: revision == '0' && desired-count != 0
+      run: echo 'You need to give revision when desired-count > 0!' && exit 1
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         role-to-assume: ${{ inputs.aws-role }}
         role-session-name: gh-actions-update-ecs-history-${{ inputs.service-name }}
         aws-region: ${{ inputs.aws-region }}
+    - name: Stop task
+      if: inputs.desired-count == 0
+      run: |
+        aws ecs update-service --cluster ${{ inputs.cluster-name }} \
+          --service ${{ inputs.service-name }}-service \
+          --deployment-configuration maximumPercent=200,minimumHealthyPercent=100 \
+          --desired-count ${{ inputs.desired-count }}
+      shell: bash
     - name: Update task definition
+      if: inputs.desired-count != 0
       run: |
         aws ecs update-service --cluster ${{ inputs.cluster-name }} \
           --service ${{ inputs.service-name }}-service \
           --task-definition ${{ inputs.service-name }}:${{ inputs.revision }} \
-          --deployment-configuration maximumPercent=200,minimumHealthyPercent=100
+          --deployment-configuration maximumPercent=200,minimumHealthyPercent=100 \
+          --desired-count ${{ inputs.desired-count }}
       shell: bash
