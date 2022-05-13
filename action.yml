@@ -33,12 +33,18 @@ runs:
     - name: Print parameters
       run: echo Updating ecs service task ${{ inputs.service-name }} to revision ${{ inputs.revision }} with desired count ${{ inputs.desired-count }}
       shell: bash
-    - name: Check parameters
-      if: inputs.revision == '0' && inputs.desired-count != 0
+    - name: Check parameters 1
+      if: inputs.revision == '0' && inputs.desired-count != '0'
       uses: actions/github-script@v3
       with:
         script: |
-          core.setFailed('You need to give revision when desired-count > 0!')
+          core.setFailed('When desired-count is more than 0, you need to specify revision!')
+    - name: Check parameters 2
+      if: inputs.revision != '0' && inputs.desired-count == '0'
+      uses: actions/github-script@v3
+      with:
+        script: |
+          core.setFailed('When desired-count is 0, you must not specify revision!')
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -51,7 +57,7 @@ runs:
         aws ecs update-service --cluster ${{ inputs.cluster-name }} \
           --service ${{ inputs.service-name }}-service \
           --desired-count 0
-        until [ "$(aws ecs list-tasks --cluster ${{ inputs.cluster-name }} --service-name ${{ inputs.service-name }}-service)" = "{}" ]; do sleep 1; done
+        while [ "$(aws ecs list-tasks --cluster ${{ inputs.cluster-name }} --service-name ${{ inputs.service-name }}-service)" == *${{ inputs.cluster-name }}* ]; do echo 'Waiting'; sleep 1; done
       shell: bash
     - name: Update task definition
       if: inputs.desired-count != 0
