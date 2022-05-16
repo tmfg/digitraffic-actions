@@ -2,6 +2,9 @@ name: 'ECS task-def Update action'
 description: 'Updates ECS task-def'
 
 inputs:
+  task-def-file-name:
+    description: 'Task-def file name'
+    required: true
   family-name:
     description: 'Task-def family name'
     required: true
@@ -44,7 +47,7 @@ runs:
         role-session-name: gh-actions-update-ecs-history-${{ inputs.service-name }}
         aws-region: ${{ inputs.aws-region }}
     - name: Create new task-def
-      run: jq -c '.containerDefinitions[0].image = "${{ inputs.image-arn }}"' digitraffic-ci/aws/task-def/${{ inputs.family-name }}-task-def.json > task-def.json
+      run: jq -c '.containerDefinitions[0].image = "${{ inputs.image-arn }}"' digitraffic-ci/aws/task-def/${{ inputs.task-def-file-name }}-task-def.json > task-def.json
       shell: bash
     - name: Update task definition
       run: |
