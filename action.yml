@@ -55,7 +55,7 @@ runs:
       shell: bash
     - name: Set up task definition parameter
       run: |
-        TASK_DEFINITION=--task-definition ${{ inputs.service-name }}
+        TASK_DEFINITION='--task-definition ${{ inputs.service-name }}'
         echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
       shell: bash
     - name: Don't use revision
