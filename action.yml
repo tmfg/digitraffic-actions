@@ -54,7 +54,7 @@ runs:
         while [ $(aws ecs list-tasks --cluster ${{ inputs.cluster-name }} --service-name ${{ inputs.service-name }}-service | jq '.taskArns | length') -gt 0 ]; do echo 'Waiting'; sleep 1; done
       shell: bash
     - name: Set up task definition parameter
-      use: |
+      run: |
         TASK_DEFINITION=--task-definition ${{ inputs.service-name }}
         echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
     - name: Don't use revision
