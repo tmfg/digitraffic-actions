@@ -55,7 +55,7 @@ runs:
       shell: bash
     - name: Set up task definition parameter
       run: |
-        TASK_DEFINITION='--task-definition ${{ inputs.service-name }}'
+        TASK_DEFINITION='${{ inputs.service-name }}'
         echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
       shell: bash
     - name: Don't use revision
@@ -68,7 +68,7 @@ runs:
       if: inputs.desired-count != 0
       run: |
         aws ecs update-service --cluster ${{ inputs.cluster-name }} \
-          --service ${{ inputs.service-name }}-service \
+          --service ${{ inputs.service-name }} \
           --task-definition ${{ env.TASK_DEFINITION }} \
           --deployment-configuration ${{ inputs.deployment-configuration }} \
           --desired-count ${{ inputs.desired-count }}
