@@ -33,13 +33,7 @@ runs:
     - name: Print parameters
       run: echo Updating ecs service task ${{ inputs.service-name }} to revision ${{ inputs.revision }} with desired count ${{ inputs.desired-count }}
       shell: bash
-    - name: Check parameters 1
-      if: inputs.revision == '0' && inputs.desired-count != '0'
-      uses: actions/github-script@v3
-      with:
-        script: |
-          core.setFailed('When desired-count is more than 0, you need to specify revision!')
-    - name: Check parameters 2
+    - name: Check parameters
       if: inputs.revision != '0' && inputs.desired-count == '0'
       uses: actions/github-script@v3
       with:
@@ -59,12 +53,21 @@ runs:
           --desired-count 0
         while [ $(aws ecs list-tasks --cluster ${{ inputs.cluster-name }} --service-name ${{ inputs.service-name }}-service | jq '.taskArns | length') -gt 0 ]; do echo 'Waiting'; sleep 1; done
       shell: bash
+    - name: Set up task definition parameter
+      use: |
+        TASK_DEFINITION=--task-definition ${{ inputs.service-name }}
+        echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
+    - name: Don't use revision
+      if: inputs.revision != '0'
+      run: |
+        TASK_DEFINITION=${{ env.TASK_DEFINITION }}:${{ inputs.revision }}
+        echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
     - name: Update task definition
       if: inputs.desired-count != 0
       run: |
         aws ecs update-service --cluster ${{ inputs.cluster-name }} \
           --service ${{ inputs.service-name }}-service \
-          --task-definition ${{ inputs.service-name }}:${{ inputs.revision }} \
+          --task-definition ${{ env.TASK_DEFINITION }} \
           --deployment-configuration ${{ inputs.deployment-configuration }} \
           --desired-count ${{ inputs.desired-count }}
       shell: bash
