@@ -57,11 +57,13 @@ runs:
       run: |
         TASK_DEFINITION=--task-definition ${{ inputs.service-name }}
         echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
+      shell: bash
     - name: Don't use revision
       if: inputs.revision != '0'
       run: |
         TASK_DEFINITION=${{ env.TASK_DEFINITION }}:${{ inputs.revision }}
         echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
+      shell: bash
     - name: Update task definition
       if: inputs.desired-count != 0
       run: |
