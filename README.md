@@ -35,7 +35,7 @@ jobs:
         uses: tmfg/digitraffic-actions@mirror/v1
         with:
           mirror-repo: <git+ssh-url>
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.SSH_MIRROR_KEY }}
 ```
 
 ## Generating ssh deploy keys
