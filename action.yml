@@ -43,7 +43,7 @@ runs:
       uses: aws-actions/configure-aws-credentials@v1
       with:
         role-to-assume: ${{ inputs.aws-role }}
-        role-session-name: gh-actions-update-ecs-history-${{ inputs.service-name }}
+        role-session-name: gh-actions-update-ecs-${{ inputs.service-name }}
         aws-region: ${{ inputs.aws-region }}
     - name: Stop task
       if: inputs.desired-count == 0
