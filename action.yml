@@ -26,6 +26,10 @@ inputs:
   ci-ssh-key:
     description: 'CI_SSH_KEY secret'
     required: true
+outputs:
+  revision:
+    description: 'Added task-def revision'
+    value: '${{ steps.revision.outputs.revision}}'
 
 runs:
   using: composite
@@ -44,9 +48,10 @@ runs:
       uses: aws-actions/configure-aws-credentials@v1
       with:
         role-to-assume: ${{ inputs.aws-role }}
-        role-session-name: gh-actions-update-ecs-history-${{ inputs.service-name }}
+        role-session-name: gh-actions-update-ecs-${{ inputs.family-name }}
         aws-region: ${{ inputs.aws-region }}
     - name: Create new task-def
+      id: revision
       run: jq -c '.containerDefinitions[0].image = "${{ inputs.image-arn }}"' digitraffic-ci/aws/task-def/${{ inputs.task-def-file-name }}-task-def.json > task-def.json
       shell: bash
     - name: Update task definition
@@ -56,4 +61,6 @@ runs:
           --cli-input-json file://task-def.json \
           --region ${{ inputs.aws-region }} \
           > output.json
+
+        echo "::set-output name=revision::$(jq -c '.taskDefinition.revision' task-def.json)"
       shell: bash
