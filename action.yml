@@ -14,10 +14,10 @@ inputs:
   aws-region:
     description: 'AWS_REGION secret'
     required: true
-  revision:
-    description: 'Revision to install'
+  task-definition:
+    description: 'Task-def(and revision) to install'
     required: false
-    default: '0'
+    default : ''
   desired-count:
     description: 'Desired count of service running'
     required: false
@@ -31,14 +31,14 @@ runs:
   using: composite
   steps:
     - name: Print parameters
-      run: echo Updating ecs service task ${{ inputs.service-name }} to revision ${{ inputs.revision }} with desired count ${{ inputs.desired-count }}
+      run: echo Updating ecs service task ${{ inputs.service-name }} to ${{ inputs.task-definition }} with desired count ${{ inputs.desired-count }}
       shell: bash
     - name: Check parameters
-      if: inputs.revision != '0' && inputs.desired-count == '0'
+      if: inputs.task-definition != '' && inputs.desired-count == '0'
       uses: actions/github-script@v3
       with:
         script: |
-          core.setFailed('When desired-count is 0, you must not specify revision!')
+          core.setFailed('When desired-count is 0, you must not specify task-definition!')
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -49,27 +49,16 @@ runs:
       if: inputs.desired-count == 0
       run: |
         aws ecs update-service --cluster ${{ inputs.cluster-name }} \
-          --service ${{ inputs.service-name }}-service \
+          --service ${{ inputs.service-name }} \
           --desired-count 0
-        while [ $(aws ecs list-tasks --cluster ${{ inputs.cluster-name }} --service-name ${{ inputs.service-name }}-service | jq '.taskArns | length') -gt 0 ]; do echo 'Waiting'; sleep 1; done
-      shell: bash
-    - name: Set up task definition parameter
-      run: |
-        TASK_DEFINITION='${{ inputs.service-name }}'
-        echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
-      shell: bash
-    - name: Don't use revision
-      if: inputs.revision != '0'
-      run: |
-        TASK_DEFINITION=${{ env.TASK_DEFINITION }}:${{ inputs.revision }}
-        echo "TASK_DEFINITION=$TASK_DEFINITION" >> $GITHUB_ENV
+        while [ $(aws ecs list-tasks --cluster ${{ inputs.cluster-name }} --service-name ${{ inputs.service-name }} | jq '.taskArns | length') -gt 0 ]; do echo 'Waiting'; sleep 1; done
       shell: bash
     - name: Update task definition
       if: inputs.desired-count != 0
       run: |
         aws ecs update-service --cluster ${{ inputs.cluster-name }} \
           --service ${{ inputs.service-name }} \
-          --task-definition ${{ env.TASK_DEFINITION }} \
+          --task-definition ${{ inputs.task-definition }} \
           --deployment-configuration ${{ inputs.deployment-configuration }} \
           --desired-count ${{ inputs.desired-count }}
       shell: bash
