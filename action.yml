@@ -1,0 +1,93 @@
+name: 'ECS Run task action'
+description: 'Runs task in ECS'
+
+inputs:
+  cluster-name:
+    description: 'Cluster to update'
+    required: true
+  task-definition:
+    description: 'Task definition'
+    required: true
+  launch-type:
+    description: 'Launch type EC2/FARGATE/EXTERNAL'
+    required: false
+    default: 'FARGATE'
+  network-config:
+    description: 'Network config for task'
+    required: true
+  aws-role:
+    description: 'AWS role to assume'
+    required: true
+  aws-region:
+    description: 'AWS region to use'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Print parameters
+      shell: bash
+      run: echo Running ECS task ${{ inputs.task-definition }} in ${{ inputs.cluster-name }}
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: ${{ inputs.aws-role }}
+        role-session-name: gh-actions-run-ecs-task-${{ inputs.cluster-name }}
+        aws-region: ${{ inputs.aws-region }}
+    - name: Run task
+      shell: bash
+      run: |
+        aws ecs run-task \
+                --launch-type ${{ inputs.launch-type }} \
+                --task-definition ${{ inputs.task-definition }} \
+                --cluster $${{ inputs.cluster-name}} \
+                --region ${{ inputs.aws-region }} \
+                --network-configuration ${{ inputs.network-config}} \
+                > aws-run.log
+
+        cat aws-run.log
+    - name: Check output
+      shell: bash
+      id: output
+      run: |
+        FAILURE_ARN=$(jq .failures[].arn aws-run.log)
+        OK_ARN=$(jq .tasks[].taskArn aws-run.log)
+
+        if [ -z "$FAILURE_ARN" ]
+        then
+          TASK_ID = ${OK_ARN#*task/}
+        else
+          exit 1
+        end
+
+        echo "TASK_ID=$TASK_ID" >> $GITHUB_ENV
+    - name: Wait completion
+      shell: bash
+      run: |
+        while(true)
+        do
+          aws ecs describe-task \
+            --cluster ${{ inputs.cluster-name }} \
+            --region ${{ inputs.aws-region }} \
+            --tasks $TASK_ID \
+            > task.json
+
+          cat task.json
+
+          STATUS=$(jq '.tasks[].lastStatus' task.json)
+
+          if [ $STATUS -eq STOPPED ] || [ $STATUS -eq DEPROVISIONING ] exit 0
+
+          sleep 1s
+        done
+    - name: Get task log
+      shell: bash
+      run : |
+        CLUSTER_NAME=${{ inputs.cluster-name}}
+        GROUP_NAME=${CLUSTER_NAME#*dt_}_db
+
+        aws logs get-log-events \
+          --region ${{ inputs.aws-region }} \
+          --log-group-name $GROUP_NAME \
+          --log-stream-name $GROUP_NAME/$GROUP_NAME/$TASK_ID \
+          --output text
