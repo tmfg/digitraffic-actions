@@ -77,20 +77,23 @@ runs:
 
           STATUS=$(jq -r '.tasks[].lastStatus' task.json)
 
-          echo Waiting, status $STATUS
+          echo Task status $STATUS
 
           if [ $STATUS = "STOPPED" ] || [ $STATUS = "DEPROVISIONING" ]; then exit 0 ; fi
 
-          sleep 3s
+          sleep 5s
         done
     - name: Get task log
       shell: bash
       run : |
         CLUSTER_NAME=${{ inputs.cluster-name}}
-        GROUP_NAME=${CLUSTER_NAME#*dt_}_db
+        GROUP_NAME=${CLUSTER_NAME#*dt-}_db
+        STREAM_NAME=$GROUP_NAME/$GROUP_NAME/$TASK_ID
+
+        echo Getting log from $GROUP_NAME/$STREAM_NAME
 
         aws logs get-log-events \
           --region ${{ inputs.aws-region }} \
           --log-group-name $GROUP_NAME \
-          --log-stream-name $GROUP_NAME/$GROUP_NAME/$TASK_ID \
+          --log-stream-name $STREAM_NAME \
           --output text
