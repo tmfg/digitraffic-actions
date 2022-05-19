@@ -40,9 +40,9 @@ runs:
         aws ecs run-task \
                 --launch-type ${{ inputs.launch-type }} \
                 --task-definition ${{ inputs.task-definition }} \
-                --cluster ${{ inputs.cluster-name}} \
+                --cluster ${{ inputs.cluster-name }} \
                 --region ${{ inputs.aws-region }} \
-                --network-configuration ${{ inputs.network-config}} \
+                --network-configuration '${{ inputs.network-config }}' \
                 > aws-run.log
 
         cat aws-run.log
