@@ -75,13 +75,13 @@ runs:
             --tasks $TASK_ID \
             > task.json
 
-          STATUS=$(jq '.tasks[].lastStatus' task.json)
+          STATUS=$(jq -r '.tasks[].lastStatus' task.json)
 
           if [ $STATUS = "STOPPED" ] || [ $STATUS = "DEPROVISIONING" ]; then exit 0 ; fi
 
           echo Waiting, status $STATUS
 
-          sleep 1s
+          sleep 3s
         done
     - name: Get task log
       shell: bash
