@@ -78,7 +78,7 @@ runs:
 
           STATUS=$(jq '.tasks[].lastStatus' task.json)
 
-          if [ $STATUS -eq STOPPED ] || [ $STATUS -eq DEPROVISIONING ] exit 0
+          if [ $STATUS -eq STOPPED ] || [ $STATUS -eq DEPROVISIONING ]; then exit 0 ; fi
 
           echo Waiting, status $STATUS
 
