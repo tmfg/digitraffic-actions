@@ -68,7 +68,7 @@ runs:
       run: |
         while true
         do
-          aws ecs describe-task \
+          aws ecs describe-tasks \
             --cluster ${{ inputs.cluster-name }} \
             --region ${{ inputs.aws-region }} \
             --tasks $TASK_ID \
