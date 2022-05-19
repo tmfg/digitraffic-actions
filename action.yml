@@ -87,8 +87,8 @@ runs:
       shell: bash
       run : |
         CLUSTER_NAME=${{ inputs.cluster-name}}
-        GROUP_NAME=${CLUSTER_NAME#*dt-}_db
-        STREAM_NAME=$GROUP_NAME/$GROUP_NAME/$TASK_ID
+        GROUP_NAME=${CLUSTER_NAME#*dt-}-db
+        STREAM_NAME=$GROUP_NAME/$TASK_ID
 
         echo Getting log from $GROUP_NAME/$STREAM_NAME
 
