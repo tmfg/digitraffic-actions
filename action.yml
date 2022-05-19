@@ -88,9 +88,9 @@ runs:
       run : |
         CLUSTER_NAME=${{ inputs.cluster-name}}
         GROUP_NAME=${CLUSTER_NAME#*dt-}-db
-        STREAM_NAME=$GROUP_NAME/$TASK_ID
+        STREAM_NAME=$GROUP_NAME/$GROUP_NAME/$TASK_ID
 
-        echo Getting log from $GROUP_NAME/$STREAM_NAME
+        echo Getting log from group $GROUP_NAME stream $STREAM_NAME
 
         aws logs get-log-events \
           --region ${{ inputs.aws-region }} \
