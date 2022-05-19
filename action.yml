@@ -56,7 +56,8 @@ runs:
         if [ -z "$FAILURE_ARN" ]
         then
           echo Task successfull
-          TASK_ID=${OK_ARN#*task/}
+          TASK_TEMP=${OK_ARN#*task/}
+          TASK_ID=${TASK_TEMP#*/}
           echo "TASK_ID=$TASK_ID" >> $GITHUB_ENV
         else
           echo Task failed
