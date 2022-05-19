@@ -66,7 +66,7 @@ runs:
     - name: Wait completion
       shell: bash
       run: |
-        while(true)
+        while true
         do
           aws ecs describe-task \
             --cluster ${{ inputs.cluster-name }} \
@@ -79,6 +79,8 @@ runs:
           STATUS=$(jq '.tasks[].lastStatus' task.json)
 
           if [ $STATUS -eq STOPPED ] || [ $STATUS -eq DEPROVISIONING ] exit 0
+
+          echo Waiting, status $STATUS
 
           sleep 1s
         done
