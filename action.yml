@@ -55,12 +55,14 @@ runs:
 
         if [ -z "$FAILURE_ARN" ]
         then
+          echo Task successfull
           TASK_ID = ${OK_ARN#*task/}
+          echo "TASK_ID=$TASK_ID" >> $GITHUB_ENV
         else
+          echo Task failed
           exit 1
-        end
+        fi
 
-        echo "TASK_ID=$TASK_ID" >> $GITHUB_ENV
     - name: Wait completion
       shell: bash
       run: |
