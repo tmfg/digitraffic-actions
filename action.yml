@@ -50,12 +50,12 @@ runs:
       shell: bash
       id: output
       run: |
-        FAILURE_ARN=$(jq .failures[].arn aws-run.log)
-        OK_ARN=$(jq .tasks[].taskArn aws-run.log)
+        FAILURE_ARN=$(jq -r .failures[].arn aws-run.log)
+        OK_ARN=$(jq -r .tasks[].taskArn aws-run.log)
 
         if [ -z "$FAILURE_ARN" ]
         then
-          echo Task successfull
+          echo Task successfull $OK_ARN
           TASK_TEMP=${OK_ARN#*task/}
           TASK_ID=${TASK_TEMP#*/}
           echo "TASK_ID=$TASK_ID" >> $GITHUB_ENV
