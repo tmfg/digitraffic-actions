@@ -29,7 +29,7 @@ inputs:
 outputs:
   revision:
     description: 'Added task-def revision'
-    value: '${{ steps.revision.outputs.revision}}'
+    value: ${{ steps.revision.outputs.revision}}
 
 runs:
   using: composite
@@ -51,10 +51,10 @@ runs:
         role-session-name: gh-actions-update-ecs-${{ inputs.family-name }}
         aws-region: ${{ inputs.aws-region }}
     - name: Create new task-def
-      id: revision
       run: jq -c '.containerDefinitions[0].image = "${{ inputs.image-arn }}"' digitraffic-ci/aws/task-def/${{ inputs.task-def-file-name }}-task-def.json > task-def.json
       shell: bash
     - name: Update task definition
+      id: revision
       run: |
         aws ecs register-task-definition \
           --family ${{ inputs.family-name }} \
@@ -63,9 +63,6 @@ runs:
           > output.json
 
         TASK_REVISION=$(jq -r '.taskDefinition.revision' output.json)
-
-        cat output.json
-        echo revision $TASK_REVISION
 
         echo "::set-output name=revision::$TASK_REVISION"
       shell: bash
