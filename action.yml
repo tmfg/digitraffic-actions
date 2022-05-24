@@ -62,5 +62,7 @@ runs:
           --region ${{ inputs.aws-region }} \
           > output.json
 
-        echo "::set-output name=revision::$(jq -c '.taskDefinition.revision' task-def.json)"
+        TASK_REVISION=$(jq -r '.taskDefinition.revision' task-def.json)
+
+        echo "::set-output name=revision::$TASK_REVISION"
       shell: bash
