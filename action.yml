@@ -53,6 +53,8 @@ runs:
     - name: Create new task-def
       run: |
         ls -lha
+        ls -lha digitraffic-ci
+        ls -lha digitraffic-ci/aws
         ls -lha digitraffic-ci/aws/task-def
         jq -c '.containerDefinitions[0].image = "${{ inputs.image-arn }}"' digitraffic-ci/aws/task-def/${{ inputs.task-def-file-name }}-task-def.json > task-def.json
       shell: bash
