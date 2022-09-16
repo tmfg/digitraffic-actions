@@ -29,7 +29,7 @@ runs:
         export CURRENT_BRANCH=${GITHUB_REF##*/}
         git config --global user.email ""
         git config --global user.name "Github Actions"
-        git add ${{ inputs.FILE_PATH }}{{ inputs.FILE_NAME }}
+        git add ${{ inputs.FILE_PATH }}${{ inputs.FILE_NAME }}
         git stash
         git fetch
         git switch ${{ inputs.GH_PAGES_BRANCH }}
