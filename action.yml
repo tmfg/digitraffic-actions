@@ -29,6 +29,10 @@ runs:
         git add ./$CURRENT_BRANCH/eslint-report.html
         git stash
         git fetch
+        if ! [[ `git branch --list ${{ inputs.GH_PAGES_BRANCH }}` ]]
+        then
+          git checkout --orphan ${{ inputs.GH_PAGES_BRANCH }}
+        fi
         git switch ${{ inputs.GH_PAGES_BRANCH }}
         git rm --ignore-unmatch ./$CURRENT_BRANCH/*
         git checkout stash@{0} -- ./$CURRENT_BRANCH/${{ inputs.FILE_NAME }}
