@@ -26,15 +26,14 @@ runs:
   steps:
     - name: 'Publish report on GitHub Pages' 
       run: |
-        export CURRENT_BRANCH=${GITHUB_REF##*/}
         git config --global user.email ""
         git config --global user.name "Github Actions"
         git add ${{ inputs.FILE_PATH }}
         git stash
         git fetch
         git switch ${{ inputs.GH_PAGES_BRANCH }}
-        git rm --ignore-unmatch {{ inputs.FILE_DIRECTORY }}*
-        git checkout stash@{0} -- {{ inputs.FILE_PATH }}
+        git rm --ignore-unmatch ${{ inputs.FILE_DIRECTORY }}*
+        git checkout stash@{0} -- ${{ inputs.FILE_PATH }}
         git commit -am "${{ inputs.COMMIT_MESSAGE }}"
         git push -f
       shell: bash
