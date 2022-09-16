@@ -8,6 +8,9 @@ inputs:
   GH_PAGES_URL:
     description: 'GitHub Pages URL for current repo'
     required: true
+  FILE_PATH: 
+    description: 'File path without file name, eg. "target/"'
+    required: true
   FILE_NAME:
     description: 'Name of file to be published'
     required: true
@@ -26,15 +29,15 @@ runs:
         export CURRENT_BRANCH=${GITHUB_REF##*/}
         git config --global user.email ""
         git config --global user.name "Github Actions"
-        git add ./$CURRENT_BRANCH/eslint-report.html
+        git add ${{ inputs.FILE_PATH }}{{ inputs.FILE_NAME }}
         git stash
         git fetch
         git switch ${{ inputs.GH_PAGES_BRANCH }}
-        git rm --ignore-unmatch ./$CURRENT_BRANCH/*
-        git checkout stash@{0} -- ./$CURRENT_BRANCH/${{ inputs.FILE_NAME }}
+        git rm --ignore-unmatch {{ inputs.FILE_PATH }}*
+        git checkout stash@{0} -- {{ inputs.FILE_PATH }}${{ inputs.FILE_NAME }}
         git commit -am "${{ inputs.COMMIT_MESSAGE }}"
         git push -f
       shell: bash
     - name: 'Link to report in workflow summary'
-      run: echo "[${{ inputs.LINK_TEXT }}](${{ inputs.GH_PAGES_URL }}/${GITHUB_REF##*/}//${{ inputs.FILE_NAME }})" >> $GITHUB_STEP_SUMMARY
+      run: echo "[${{ inputs.LINK_TEXT }}](${{ inputs.GH_PAGES_URL }}/{{ inputs.FILE_PATH }}//${{ inputs.FILE_NAME }})" >> $GITHUB_STEP_SUMMARY
       shell: bash
