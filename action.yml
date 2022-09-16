@@ -8,11 +8,11 @@ inputs:
   GH_PAGES_URL:
     description: 'GitHub Pages URL for current repo'
     required: true
-  FILE_PATH: 
-    description: 'File path without file name, eg. "target/"'
+  FILE_DIRECTORY: 
+    description: 'Directory path of file, eg. "target/"'
     required: true
-  FILE_NAME:
-    description: 'Name of file to be published'
+  FILE_PATH:
+    description: 'Path of file to be published'
     required: true
   COMMIT_MESSAGE:
     description: 'Commit message when pushing to GitHub Pages branch'
@@ -29,15 +29,15 @@ runs:
         export CURRENT_BRANCH=${GITHUB_REF##*/}
         git config --global user.email ""
         git config --global user.name "Github Actions"
-        git add ${{ inputs.FILE_PATH }}${{ inputs.FILE_NAME }}
+        git add ${{ inputs.FILE_PATH }}
         git stash
         git fetch
         git switch ${{ inputs.GH_PAGES_BRANCH }}
-        git rm --ignore-unmatch {{ inputs.FILE_PATH }}*
-        git checkout stash@{0} -- {{ inputs.FILE_PATH }}${{ inputs.FILE_NAME }}
+        git rm --ignore-unmatch {{ inputs.FILE_DIRECTORY }}*
+        git checkout stash@{0} -- {{ inputs.FILE_PATH }}
         git commit -am "${{ inputs.COMMIT_MESSAGE }}"
         git push -f
       shell: bash
     - name: 'Link to report in workflow summary'
-      run: echo "[${{ inputs.LINK_TEXT }}](${{ inputs.GH_PAGES_URL }}/{{ inputs.FILE_PATH }}//${{ inputs.FILE_NAME }})" >> $GITHUB_STEP_SUMMARY
+      run: echo "[${{ inputs.LINK_TEXT }}](${{ inputs.GH_PAGES_URL }}/${{ inputs.FILE_PATH }})" >> $GITHUB_STEP_SUMMARY
       shell: bash
