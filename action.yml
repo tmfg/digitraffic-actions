@@ -21,7 +21,7 @@ inputs:
 runs: 
   using: 'composite'
   steps:
-    - name: 'Publish report on GitHub Pages' 
+    - name: 'Publish file on GitHub Pages' 
       run: |
         git config --global user.email ""
         git config --global user.name "Github Actions"
@@ -34,6 +34,6 @@ runs:
         git commit -am "${{ inputs.COMMIT_MESSAGE }}"
         git push -f
       shell: bash
-    - name: 'Link to report in workflow summary'
+    - name: 'Link to file in workflow summary'
       run: echo "[${{ inputs.LINK_TEXT }}](${{ inputs.GH_PAGES_URL }}/${{ inputs.FILE_PATH }})" >> $GITHUB_STEP_SUMMARY
       shell: bash
