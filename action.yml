@@ -8,11 +8,8 @@ inputs:
   GH_PAGES_URL:
     description: 'GitHub Pages URL for current repo'
     required: true
-  FILE_DIRECTORY: 
-    description: 'Directory path of file, eg. "target/"'
-    required: true
   FILE_PATH:
-    description: 'Path of file to be published'
+    description: 'Path of file to be published, eg. target/report.html'
     required: true
   COMMIT_MESSAGE:
     description: 'Commit message when pushing to GitHub Pages branch'
@@ -32,7 +29,7 @@ runs:
         git stash
         git fetch
         git switch ${{ inputs.GH_PAGES_BRANCH }}
-        git rm --ignore-unmatch ${{ inputs.FILE_DIRECTORY }}*
+        git rm --ignore-unmatch $(dirname ${{ inputs.FILE_PATH }})/*
         git checkout stash@{0} -- ${{ inputs.FILE_PATH }}
         git commit -am "${{ inputs.COMMIT_MESSAGE }}"
         git push -f
