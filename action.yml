@@ -5,9 +5,6 @@ inputs:
     description: 'Branch for GitHub Pages content'
     required: false
     default: 'gh-pages'
-  GH_PAGES_URL:
-    description: 'GitHub Pages URL for current repo'
-    required: true
   FILE_PATH:
     description: 'Path of file to be published, eg. target/report.html'
     required: true
