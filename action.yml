@@ -35,5 +35,7 @@ runs:
         git push -f
       shell: bash
     - name: 'Link to file in workflow summary'
-      run: echo "[${{ inputs.LINK_TEXT }}](${{ inputs.GH_PAGES_URL }}/${{ inputs.FILE_PATH }})" >> $GITHUB_STEP_SUMMARY
+      run: |
+        echo ${{ inputs.GH_PAGES_URL }} >> pages_url.txt
+        echo "[${{ inputs.LINK_TEXT }}]($(cat pages_url.txt)/${{ inputs.FILE_PATH }})" >> $GITHUB_STEP_SUMMARY
       shell: bash
