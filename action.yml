@@ -36,6 +36,7 @@ runs:
       shell: bash
     - name: 'Link to file in workflow summary'
       run: |
-        echo ${{ inputs.GH_PAGES_URL }} >> pages_url.txt
-        echo "[${{ inputs.LINK_TEXT }}]($(cat pages_url.txt)/${{ inputs.FILE_PATH }})" >> $GITHUB_STEP_SUMMARY
+        export org=$(echo $GITHUB_REPOSITORY | sed -E 's/^([A-Za-z0-9_\-]+)\/.+$/\1/')
+        export repo=$(echo $GITHUB_REPOSITORY | sed -E 's/^.+\/([A-Za-z0-9_\-]+)$/\1/')
+        echo "[${{ inputs.LINK_TEXT }}](https://$org.github.io/$repo/${{ inputs.FILE_PATH }})" >> $GITHUB_STEP_SUMMARY
       shell: bash
