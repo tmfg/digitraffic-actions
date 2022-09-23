@@ -16,3 +16,18 @@ jobs:
       - name: run action
         uses: tmfg/digitraffic-actions@<action-branch>
 ```
+
+## Available actions
+
+[Run task in ECS](https://github.com/tmfg/digitraffic-actions/tree/ecs-run-task/v1)
+
+[Update ECS task definition](https://github.com/tmfg/digitraffic-actions/tree/update-task-def/v1)
+
+[Update ECS service](https://github.com/tmfg/digitraffic-actions/tree/ecs-service-update/v1)
+
+[Mirror repository](https://github.com/tmfg/digitraffic-actions/blob/mirror/v1/action.yml)
+
+[Publish workflow artifacts on GitHub Pages](https://github.com/tmfg/digitraffic-actions/tree/gh-pages-publish/v1)
+
+
+
