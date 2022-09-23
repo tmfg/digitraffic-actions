@@ -25,7 +25,7 @@ jobs:
 
 [Update ECS service](https://github.com/tmfg/digitraffic-actions/tree/ecs-service-update/v1)
 
-[Mirror repository](https://github.com/tmfg/digitraffic-actions/blob/mirror/v1/action.yml)
+[Mirror repository](https://github.com/tmfg/digitraffic-actions/tree/mirror/v1)
 
 [Publish workflow artifacts on GitHub Pages](https://github.com/tmfg/digitraffic-actions/tree/gh-pages-publish/v1)
 
