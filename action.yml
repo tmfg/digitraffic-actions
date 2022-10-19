@@ -51,7 +51,7 @@ runs:
         git stash
         git fetch
         git switch ${{ inputs.GH_PAGES_BRANCH }}
-        git rm --ignore-unmatch ${{ inputs.FILE_PATH }}*
+        git rm -r --ignore-unmatch ${{ inputs.FILE_PATH }}*
         git checkout stash@{0} -- ${{ inputs.FILE_PATH }}
         echo "COMMITTED_FILES=$(git diff --name-only --cached)" >> $GITHUB_ENV
         git commit -am "${{ inputs.COMMIT_MESSAGE }}"
