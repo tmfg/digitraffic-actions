@@ -53,9 +53,7 @@ runs:
         git switch ${{ inputs.GH_PAGES_BRANCH }}
         git rm --ignore-unmatch ${{ inputs.FILE_PATH }}*
         git checkout stash@{0} -- ${{ inputs.FILE_PATH }}
-        export COMMITTED_FILES=$(git diff --name-only --cached)
-        echo $COMMITTED_FILES
-        echo "::set-env name=COMMITTED_FILES::$COMMITTED_FILES"
+        echo "COMMITTED_FILES=$(git diff --name-only --cached)" >> $GITHUB_ENV
         git commit -am "${{ inputs.COMMIT_MESSAGE }}"
         git push -f
       shell: bash
