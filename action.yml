@@ -15,6 +15,7 @@ inputs:
     description: 'Text to display on link to file'
     required: true
   BULK:
+    type: boolean
     required: false
     default: false
 runs: 
