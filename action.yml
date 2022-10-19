@@ -15,14 +15,13 @@ inputs:
     description: 'Text to display on link to file'
     required: true
   BULK:
-    type: boolean
     required: false
     default: false
 runs: 
   using: 'composite'
   steps:
     - name: 'Publish file on GitHub Pages' 
-      if: ${{ inputs.BULK == false }}
+      if: ${{ inputs.BULK == 'false' }}
       run: |
         git config --global user.email ""
         git config --global user.name "Github Actions"
@@ -36,7 +35,7 @@ runs:
         git push -f
       shell: bash
     - name: 'Link to file in workflow summary'
-      if: ${{ inputs.BULK == false }}
+      if: ${{ inputs.BULK == 'false' }}
       run: |
         export org=$(echo $GITHUB_REPOSITORY | sed -E 's/^([A-Za-z0-9_\-]+)\/.+$/\1/')
         export repo=$(echo $GITHUB_REPOSITORY | sed -E 's/^.+\/([A-Za-z0-9_\-]+)$/\1/')
@@ -44,7 +43,7 @@ runs:
       shell: bash
       
     - name: 'Publish multiple files on GitHub Pages' 
-      if: ${{ inputs.BULK == true }}
+      if: ${{ inputs.BULK == 'true' }}
       run: |
         git config --global user.email ""
         git config --global user.name "Github Actions"
@@ -61,7 +60,7 @@ runs:
         git push -f
       shell: bash
     - name: 'Link to files in workflow summary'
-      if: ${{ inputs.BULK == true }}
+      if: ${{ inputs.BULK == 'true' }}
       run: |
         export org=$(echo $GITHUB_REPOSITORY | sed -E 's/^([A-Za-z0-9_\-]+)\/.+$/\1/')
         export repo=$(echo $GITHUB_REPOSITORY | sed -E 's/^.+\/([A-Za-z0-9_\-]+)$/\1/')
