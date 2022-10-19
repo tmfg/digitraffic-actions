@@ -14,11 +14,14 @@ inputs:
   LINK_TEXT:
     description: 'Text to display on link to file'
     required: true
-
+  BULK:
+    required: false
+    default: false
 runs: 
   using: 'composite'
   steps:
     - name: 'Publish file on GitHub Pages' 
+      if: ${{ inputs.BULK == false }}
       run: |
         git config --global user.email ""
         git config --global user.name "Github Actions"
@@ -32,8 +35,36 @@ runs:
         git push -f
       shell: bash
     - name: 'Link to file in workflow summary'
+      if: ${{ inputs.BULK == false }}
       run: |
         export org=$(echo $GITHUB_REPOSITORY | sed -E 's/^([A-Za-z0-9_\-]+)\/.+$/\1/')
         export repo=$(echo $GITHUB_REPOSITORY | sed -E 's/^.+\/([A-Za-z0-9_\-]+)$/\1/')
         echo "[${{ inputs.LINK_TEXT }}](https://$org.github.io/$repo/${{ inputs.FILE_PATH }})" >> $GITHUB_STEP_SUMMARY
+      shell: bash
+      
+    - name: 'Publish multiple files on GitHub Pages' 
+      if: ${{ inputs.BULK == true }}
+      run: |
+        git config --global user.email ""
+        git config --global user.name "Github Actions"
+        git add -f ${{ inputs.FILE_PATH }}
+        git stash
+        git fetch
+        git switch ${{ inputs.GH_PAGES_BRANCH }}
+        git rm --ignore-unmatch ${{ inputs.FILE_PATH }}*
+        git checkout stash@{0} -- ${{ inputs.FILE_PATH }}
+        export COMMITTED_FILES=$(git diff --name-only --cached)
+        echo $COMMITTED_FILES
+        echo "::set-env name=COMMITTED_FILES::$COMMITTED_FILES"
+        git commit -am "${{ inputs.COMMIT_MESSAGE }}"
+        git push -f
+      shell: bash
+    - name: 'Link to files in workflow summary'
+      if: ${{ inputs.BULK == true }}
+      run: |
+        export org=$(echo $GITHUB_REPOSITORY | sed -E 's/^([A-Za-z0-9_\-]+)\/.+$/\1/')
+        export repo=$(echo $GITHUB_REPOSITORY | sed -E 's/^.+\/([A-Za-z0-9_\-]+)$/\1/')
+        while IFS= read -r line; do
+          echo "[${{ inputs.LINK_TEXT }} $line](https://$org.github.io/$repo/$line)" >> $GITHUB_STEP_SUMMARY
+        done <<< "$COMMITTED_FILES"
       shell: bash
