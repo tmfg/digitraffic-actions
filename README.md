@@ -9,7 +9,7 @@ Actions are stored in their own branches and thus the main branch doesn't contai
 Action for mirroring a single branch with tags to another repository.
 
 ## Changes in v2
-Upgrade from node from 12 to 16.
+Upgrade node from 12 to 16.
 
 ## Usage
 
