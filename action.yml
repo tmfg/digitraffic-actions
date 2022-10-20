@@ -6,15 +6,21 @@ inputs:
     required: false
     default: 'gh-pages'
   FILE_PATH:
-    description: 'Path of file to be published, eg. target/report.html'
+    description: 'Path of file to be published, eg. target/report.html. If BULK=true, give a path, eg. target/'
     required: true
   COMMIT_MESSAGE:
     description: 'Commit message when pushing to GitHub Pages branch'
     required: true
   LINK_TEXT:
     description: 'Text to display on link to file'
-    required: true
+    required: false
+    default: ''
+  SKIP_LINK:
+    description: 'Skip generating links at end of run'
+    required: false
+    default: false
   BULK:
+    description: 'Upload the contents of a directory instead of a single file'
     required: false
     default: false
 runs: 
@@ -35,7 +41,7 @@ runs:
         git push -f
       shell: bash
     - name: 'Link to file in workflow summary'
-      if: ${{ inputs.BULK == 'false' }}
+      if: ${{ (inputs.BULK == 'false') && (inputs.SKIP_LINK == 'false') }}
       run: |
         export org=$(echo $GITHUB_REPOSITORY | sed -E 's/^([A-Za-z0-9_\-]+)\/.+$/\1/')
         export repo=$(echo $GITHUB_REPOSITORY | sed -E 's/^.+\/([A-Za-z0-9_\-]+)$/\1/')
@@ -44,6 +50,7 @@ runs:
       
     - name: 'Publish multiple files on GitHub Pages' 
       if: ${{ inputs.BULK == 'true' }}
+      shell: bash
       run: |
         git config --global user.email ""
         git config --global user.name "Github Actions"
@@ -59,13 +66,15 @@ runs:
         echo "EOF" >> $GITHUB_ENV
         git commit -am "${{ inputs.COMMIT_MESSAGE }}"
         git push -f
-      shell: bash
+
+
     - name: 'Link to files in workflow summary'
-      if: ${{ inputs.BULK == 'true' }}
+      if: ${{ (inputs.BULK == 'true') && (inputs.SKIP_LINK == 'false') }}
+      shell: bash
       run: |
         export org=$(echo $GITHUB_REPOSITORY | sed -E 's/^([A-Za-z0-9_\-]+)\/.+$/\1/')
         export repo=$(echo $GITHUB_REPOSITORY | sed -E 's/^.+\/([A-Za-z0-9_\-]+)$/\1/')
         while IFS= read -r line; do
           echo "[${{ inputs.LINK_TEXT }} $line](https://$org.github.io/$repo/$line)" >> $GITHUB_STEP_SUMMARY
         done <<< "$COMMITTED_FILES"
-      shell: bash
+        
