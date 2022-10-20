@@ -1,12 +1,12 @@
 name: 'Publish on GitHub Pages'
-description: 'Publish a workflow artifact on GitHub Pages and link to it'
+description: 'Publish files on GitHub Pages and link to them'
 inputs:
   GH_PAGES_BRANCH:
     description: 'Branch for GitHub Pages content'
     required: false
     default: 'gh-pages'
   FILE_PATH:
-    description: 'Path of file to be published, eg. target/report.html. If BULK=true, give a path, eg. target/'
+    description: 'Path of file or directory to be published, e.g. target/report.html or target/'
     required: true
   COMMIT_MESSAGE:
     description: 'Commit message when pushing to GitHub Pages branch'
@@ -25,31 +25,8 @@ inputs:
     default: false
 runs: 
   using: 'composite'
-  steps:
-    - name: 'Publish file on GitHub Pages' 
-      if: ${{ inputs.BULK == 'false' }}
-      run: |
-        git config --global user.email ""
-        git config --global user.name "Github Actions"
-        git add -f ${{ inputs.FILE_PATH }}
-        git stash
-        git fetch
-        git switch ${{ inputs.GH_PAGES_BRANCH }}
-        git rm --ignore-unmatch $(dirname ${{ inputs.FILE_PATH }})/*
-        git checkout stash@{0} -- ${{ inputs.FILE_PATH }}
-        git commit -am "${{ inputs.COMMIT_MESSAGE }}"
-        git push -f
-      shell: bash
-    - name: 'Link to file in workflow summary'
-      if: ${{ (inputs.BULK == 'false') && (inputs.SKIP_LINK == 'false') }}
-      run: |
-        export org=$(echo $GITHUB_REPOSITORY | sed -E 's/^([A-Za-z0-9_\-]+)\/.+$/\1/')
-        export repo=$(echo $GITHUB_REPOSITORY | sed -E 's/^.+\/([A-Za-z0-9_\-]+)$/\1/')
-        echo "[${{ inputs.LINK_TEXT }}](https://$org.github.io/$repo/${{ inputs.FILE_PATH }})" >> $GITHUB_STEP_SUMMARY
-      shell: bash
-      
-    - name: 'Publish multiple files on GitHub Pages' 
-      if: ${{ inputs.BULK == 'true' }}
+  steps:      
+    - name: 'Push files to GitHub Pages branch' 
       shell: bash
       run: |
         git config --global user.email ""
@@ -58,7 +35,13 @@ runs:
         git stash
         git fetch
         git switch ${{ inputs.GH_PAGES_BRANCH }}
-        git rm -r --ignore-unmatch ${{ inputs.FILE_PATH }}*
+        if [[ -d $${{ inputs.FILE_PATH }} ]]; then
+          echo "Found directory ${{ inputs.FILE_PATH }}"
+          git rm -r --ignore-unmatch $(dirname ${{ inputs.FILE_PATH }})/$(basename ${{ inputs.FILE_PATH }})/*
+        elif [[ -f ${{ inputs.FILE_PATH }} ]]; then
+          echo "Found file ${{ inputs.FILE_PATH }}"
+          git rm -r --ignore-unmatch $(dirname ${{ inputs.FILE_PATH }})/*
+        fi        
         git checkout stash@{0} -- ${{ inputs.FILE_PATH }}
         git diff --name-only --cached
         echo "COMMITTED_FILES<<EOF" >> $GITHUB_ENV
@@ -67,9 +50,8 @@ runs:
         git commit -am "${{ inputs.COMMIT_MESSAGE }}"
         git push -f
 
-
     - name: 'Link to files in workflow summary'
-      if: ${{ (inputs.BULK == 'true') && (inputs.SKIP_LINK == 'false') }}
+      if: ${{ inputs.SKIP_LINK == 'false' }}
       shell: bash
       run: |
         export org=$(echo $GITHUB_REPOSITORY | sed -E 's/^([A-Za-z0-9_\-]+)\/.+$/\1/')
