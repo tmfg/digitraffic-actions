@@ -8,6 +8,9 @@ Actions are stored in their own branches and thus the main branch doesn't contai
 
 Action for mirroring a single branch with tags to another repository.
 
+## Changes in v2
+Upgrade from node from 12 to 16.
+
 ## Usage
 
 Required parameters:
@@ -32,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Mirror
-        uses: tmfg/digitraffic-actions@mirror/v1
+        uses: tmfg/digitraffic-actions@mirror/v2
         with:
           mirror-repo: <git+ssh-url>
           ssh-private-key: ${{ secrets.SSH_MIRROR_KEY }}
