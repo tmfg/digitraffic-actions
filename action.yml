@@ -16,15 +16,15 @@ inputs:
     description: 'Text to display on link to file'
     required: false
     default: ''
-  SKIP_LINK:
+  NO_SUMMARY:
     description: 'Skip generating links at end of run'
     required: false
     default: false
 
-runs: 
+runs:
   using: 'composite'
-  steps:      
-    - name: 'Push files to GitHub Pages branch' 
+  steps:
+    - name: 'Push files to GitHub Pages branch'
       shell: bash
       run: |
         git config --global user.email ""
@@ -48,7 +48,7 @@ runs:
         git push -f
 
     - name: 'Link to files in workflow summary'
-      if: ${{ inputs.SKIP_LINK == 'false' }}
+      if: ${{ inputs.NO_SUMMARY == 'false' }}
       shell: bash
       run: |
         export org=$(echo $GITHUB_REPOSITORY | sed -E 's/^([A-Za-z0-9_\-]+)\/.+$/\1/')

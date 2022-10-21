@@ -32,7 +32,7 @@ The following example publishes a file from the location `reports/report.html` o
     LINK_TEXT: ESLint report
 ```
 
-If you do not want to generate links to the file/files, add `SKIP_LINK: true`. 
+If you do not want to generate links to the file/files in the workflow summary, add `NO_SUMMARY: true`. 
 
 Below is an example of a workflow summary page with a link to the published file:
 
