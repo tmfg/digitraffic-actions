@@ -58,7 +58,7 @@ runs:
         export org=$(echo $GITHUB_REPOSITORY | sed -E 's/^([A-Za-z0-9_\-]+)\/.+$/\1/')
         export repo=$(echo $GITHUB_REPOSITORY | sed -E 's/^.+\/([A-Za-z0-9_\-]+)$/\1/')
         while IFS= read -r line; do
-          if [[ $${{ inputs.PRINT_PATH }} == 'true' ||  ${{ inputs.LINK_TEXT }} == '' ]]; then
+          if [[ $${{ inputs.PRINT_PATH }} ||  ${{ inputs.LINK_TEXT }} == '' ]]; then
             echo "[${{ inputs.LINK_TEXT }} $line](https://$org.github.io/$repo/$line)" >> $GITHUB_STEP_SUMMARY
           else
             echo "[${{ inputs.LINK_TEXT }}](https://$org.github.io/$repo/$line)" >> $GITHUB_STEP_SUMMARY
