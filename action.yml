@@ -16,6 +16,10 @@ inputs:
     description: 'Text to display on link to file'
     required: false
     default: ''
+  PRINT_PATH:
+    description: 'If true, prints full file path after LINK_TEXT'
+    required: false
+    default: false
   NO_SUMMARY:
     description: 'Skip generating links at end of run'
     required: false
@@ -54,6 +58,10 @@ runs:
         export org=$(echo $GITHUB_REPOSITORY | sed -E 's/^([A-Za-z0-9_\-]+)\/.+$/\1/')
         export repo=$(echo $GITHUB_REPOSITORY | sed -E 's/^.+\/([A-Za-z0-9_\-]+)$/\1/')
         while IFS= read -r line; do
-          echo "[${{ inputs.LINK_TEXT }} $line](https://$org.github.io/$repo/$line)" >> $GITHUB_STEP_SUMMARY
+          if [[ $${{ inputs.PRINT_PATH }} == 'true' ||  ${{ inputs.LINK_TEXT }} == '' ]]; then
+            echo "[${{ inputs.LINK_TEXT }} $line](https://$org.github.io/$repo/$line)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "[${{ inputs.LINK_TEXT }}](https://$org.github.io/$repo/$line)" >> $GITHUB_STEP_SUMMARY
+          fi
         done <<< "$COMMITTED_FILES"
         
