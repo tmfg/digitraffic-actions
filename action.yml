@@ -38,7 +38,7 @@ runs:
           git rm -r --ignore-unmatch $(dirname ${{ inputs.FILE_PATH }})/$(basename ${{ inputs.FILE_PATH }})/*
         elif [[ -f ${{ inputs.FILE_PATH }} ]]; then
           echo "Found file ${{ inputs.FILE_PATH }}, removing existing"
-          git rm -r --ignore-unmatch $(dirname ${{ inputs.FILE_PATH }})/*
+          git rm --ignore-unmatch ${{ inputs.FILE_PATH }}
         fi        
         git checkout stash@{0} -- ${{ inputs.FILE_PATH }}
         echo "COMMITTED_FILES<<EOF" >> $GITHUB_ENV
