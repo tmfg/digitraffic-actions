@@ -52,9 +52,11 @@ runs:
         aws-region: ${{ inputs.aws-region }}
     - name: Copy task-def from ci-repo
       if: ${{ !startsWith(inputs.task-def-file-name, 'local') }}
+      shell: bash
       run: cp digitraffic-ci/aws/task-def/${{ inputs.task-def-file-name }}-task-def.json task-def.json
     - name: Copy task-def from local file
       if: ${{ startsWith(inputs.task-def-file-name, 'local') }}
+      shell: bash
       run: cp ${{ inputs.task-def-file-name }} task-def.json
     - name: Create new task-def
       run: jq -c '.containerDefinitions[0].image = "${{ inputs.image-arn }}"' task-def.json > task-def.json
