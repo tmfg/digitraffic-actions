@@ -26,6 +26,13 @@ inputs:
   ci-ssh-key:
     description: 'CI_SSH_KEY secret'
     required: true
+  environment-index:
+    description: 'Set environment with this index in container'
+    required: false
+    default: 0
+  environment-value:
+    description: 'Set environment with this value in container'
+    required: false
 outputs:
   revision:
     description: 'Added task-def revision'
@@ -51,13 +58,12 @@ runs:
         role-session-name: gh-actions-update-ecs-${{ inputs.family-name }}
         aws-region: ${{ inputs.aws-region }}
     - name: Copy task-def from ci-repo
-      if: ${{ !startsWith(inputs.task-def-file-name, 'local') }}
       shell: bash
       run: cp digitraffic-ci/aws/task-def/${{ inputs.task-def-file-name }}-task-def.json task-def.json
-    - name: Copy task-def from local file
-      if: ${{ startsWith(inputs.task-def-file-name, 'local') }}
+    - name: Set parameter value
+      if: ${{ inputs.environment-value != '' }}
       shell: bash
-      run: cp ${{ inputs.task-def-file-name }} task-def.json
+      run: jq -c '.containerDefinitions[0].environment[${{ inputs.environment-index }}].value = "${{ inputs.environment-value }}"' task-def.json > task-def.json
     - name: Create new task-def
       run: jq -c '.containerDefinitions[0].image = "${{ inputs.image-arn }}"' task-def.json > task-def.json
       shell: bash
