@@ -64,6 +64,8 @@ runs:
     - name: Update task definition
       id: revision
       run: |
+        cat task-def.json
+        
         aws ecs register-task-definition \
           --family ${{ inputs.family-name }} \
           --cli-input-json file://task-def.json \
