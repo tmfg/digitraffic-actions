@@ -58,6 +58,7 @@ runs:
         role-session-name: gh-actions-update-ecs-${{ inputs.family-name }}
         aws-region: ${{ inputs.aws-region }}
     - name: Copy task-def from ci-repo
+      if: ${{ inputs.environment-value == '' }}
       shell: bash
       run: |
         cp digitraffic-ci/aws/task-def/${{ inputs.task-def-file-name }}-task-def.json task-def.json
@@ -66,20 +67,20 @@ runs:
       if: ${{ inputs.environment-value != '' }}
       shell: bash
       run: |
-        jq -c '.containerDefinitions[0].environment[${{ inputs.environment-index }}].value = "${{ inputs.environment-value }}"' task-def.json > task-def.json
+        jq -c '.containerDefinitions[0].environment[${{ inputs.environment-index }}].value = "${{ inputs.environment-value }}"' digitraffic-ci/aws/task-def/${{ inputs.task-def-file-name }}-task-def.json > task-def.json
         less task-def.json
     - name: Create new task-def
-      run: jq -c '.containerDefinitions[0].image = "${{ inputs.image-arn }}"' task-def.json > task-def.json
+      run: jq -c '.containerDefinitions[0].image = "${{ inputs.image-arn }}"' task-def.json > task-def-1.json
       shell: bash
     - name: Update task definition
       id: revision
       run: |
         ls
-        cat task-def.json
+        cat task-def-1.json
         
         aws ecs register-task-definition \
           --family ${{ inputs.family-name }} \
-          --cli-input-json file://task-def.json \
+          --cli-input-json file://task-def-1.json \
           --region ${{ inputs.aws-region }} \
           > output.json
 
