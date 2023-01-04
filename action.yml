@@ -60,24 +60,17 @@ runs:
     - name: Copy task-def from ci-repo
       if: ${{ inputs.environment-value == '' }}
       shell: bash
-      run: |
-        cp digitraffic-ci/aws/task-def/${{ inputs.task-def-file-name }}-task-def.json task-def.json
-        less task-def.json
+      run: cp digitraffic-ci/aws/task-def/${{ inputs.task-def-file-name }}-task-def.json task-def.json
     - name: Set parameter value
       if: ${{ inputs.environment-value != '' }}
       shell: bash
-      run: |
-        jq -c '.containerDefinitions[0].environment[${{ inputs.environment-index }}].value = "${{ inputs.environment-value }}"' digitraffic-ci/aws/task-def/${{ inputs.task-def-file-name }}-task-def.json > task-def.json
-        less task-def.json
+      run: jq -c '.containerDefinitions[0].environment[${{ inputs.environment-index }}].value = "${{ inputs.environment-value }}"' digitraffic-ci/aws/task-def/${{ inputs.task-def-file-name }}-task-def.json > task-def.json
     - name: Create new task-def
       run: jq -c '.containerDefinitions[0].image = "${{ inputs.image-arn }}"' task-def.json > task-def-1.json
       shell: bash
     - name: Update task definition
       id: revision
-      run: |
-        ls
-        cat task-def-1.json
-        
+      run: |       
         aws ecs register-task-definition \
           --family ${{ inputs.family-name }} \
           --cli-input-json file://task-def-1.json \
