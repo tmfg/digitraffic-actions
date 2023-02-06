@@ -27,11 +27,11 @@ inputs:
     description: 'CI_SSH_KEY secret'
     required: true
   environment-index:
-    description: 'Set environment with this index in container'
+    description: 'Index of environment value to set'
     required: false
     default: 0
   environment-value:
-    description: 'Set environment with this value in container'
+    description: 'Set this value to environment with given index in the container'
     required: false
 outputs:
   revision:
@@ -79,5 +79,5 @@ runs:
 
         TASK_REVISION=$(jq -r '.taskDefinition.revision' output.json)
 
-        echo "::set-output name=revision::$TASK_REVISION"
+        echo "revision=$TASK_REVISION" >> $GITHUB_OUTPUT
       shell: bash
