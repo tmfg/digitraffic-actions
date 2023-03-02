@@ -19,6 +19,7 @@ runs:
           DT_MIRROR_REPO=${{ inputs.mirror-repo }}
           echo "::add-mask::$DT_MIRROR_REPO"
           echo "DT_MIRROR_REPO=$DT_MIRROR_REPO" >> $GITHUB_ENV
+      shell: bash
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
