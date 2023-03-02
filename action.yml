@@ -26,5 +26,5 @@ runs:
     - uses: webfactory/ssh-agent@v0.6.0
       with:
         ssh-private-key: ${{ inputs.ssh-private-key }}
-    - run: git push --follow-tags $DT_MIRROR_REPO ${{ inputs.refspec }}
+    - run: git push --follow-tags $DT_MIRROR_REPO ${{ inputs.refspec }} > /dev/null 2>&1
       shell: bash
