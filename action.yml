@@ -45,7 +45,7 @@ runs:
       run: echo Updating ecs task-def ${{ inputs.family-name }} to image ${{ inputs.image-arn }}
       shell: bash
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: ${{ inputs.ci-repo-url }}
         ssh-key: ${{ inputs.ci-ssh-key }}
