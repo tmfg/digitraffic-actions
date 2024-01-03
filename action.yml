@@ -1,5 +1,5 @@
-name: Deploy Hugo site to Pages
-description: Generates and deploys a Hugo site to Github Pages with given configuration file
+name: Build and deploy Hugo site to Pages
+description: Builds and deploys a Hugo site to Github Pages with given configuration file
 
 inputs:
   HUGO_VERSION:
