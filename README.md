@@ -29,5 +29,7 @@ jobs:
 
 [Publish workflow artifacts on GitHub Pages](https://github.com/tmfg/digitraffic-actions/tree/gh-pages-publish/v1)
 
+[Build and publish a Hugo generated site on GitHub Pages](https://github.com/tmfg/digitraffic-actions/tree/publish-hugo-site/v1)
+
 
 
