@@ -7,6 +7,9 @@ inputs:
   CONFIG_FILE_PATH:
     required: false
     default: config.yml
+  BRANCH:
+    required: false
+    default: ${{ github.event.repository.default_branch }}
 
 runs:
   using: composite
@@ -19,6 +22,7 @@ runs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
+        ref: ${{ inputs.BRANCH }}
         submodules: recursive
     - name: Setup Pages
       id: pages
