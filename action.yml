@@ -40,7 +40,7 @@ runs:
         script: |
           core.setFailed('When desired-count is 0, you must not specify task-definition!')
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
+      uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ inputs.aws-role }}
         role-session-name: gh-actions-update-ecs-${{ inputs.service-name }}
