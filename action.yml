@@ -1,0 +1,38 @@
+name: Scan Dependabot alerts and notify via Slack
+description: Reads the Dependabot alerts of a repository and sends a Slack notification.
+
+inputs:
+  TOKEN:
+    required: true
+    description: GitHub token granting read access to Dependabot alerts in target repo
+  SLACK_WEBHOOK_URL:
+    required: true
+    description: Slack notification target
+  CRITICAL_ONLY:
+    required: false
+    default: "false"
+    description: Send notification only for alerts of critical severity
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Get Dependabot alerts
+      id: get-alerts
+      shell: bash
+      env:
+        TOKEN: ${{ inputs.TOKEN }}
+        GITHUB_REPO_OWNER: ${{ github.repository_owner }}
+        GITHUB_REPO: ${{ github.repository }}
+        OUTPUT_KEY: alerts
+        CRITICAL_ONLY: ${{ inputs.CRITICAL_ONLY }}
+      run: python script.py
+    - name: test output
+      env:
+        ALERT_LIST: ${{steps.get-alerts.outputs.alerts}}
+      shell: python
+      run: |
+        import os
+        alerts = os.getenv("ALERT_LIST")
+        print(alerts)
