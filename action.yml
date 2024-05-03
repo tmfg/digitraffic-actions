@@ -83,7 +83,7 @@ runs:
             if len(alerts) > 0:
                 output_string = "\n".join(
                     [
-                        f'{alert["summary"]} ({alert["severity"]}): {alert["url"]}'
+                        f'{alert["summary"]} ({alert["severity"]}): {(alert["url"])}'
                         for alert in alerts
                     ]
                 )
@@ -93,12 +93,16 @@ runs:
         else:
             print(f"Getting Dependabot alerts failed with status code {response.status_code}")
 
-    - name: test output
+    - name: Notify Slack
       if: failure()
+      uses: 8398a7/action-slack@v3
       env:
-        ALERT_LIST: ${{steps.get-alerts.outputs.alerts}}
-      shell: python
-      run: |
-        import os
-        alerts = os.getenv("ALERT_LIST")
-        print(alerts)
+        SLACK_WEBHOOK_URL: ${{ inputs.SLACK_WEBHOOK_URL }}
+      with:
+        custom_payload: |
+          {
+           attachments: [{
+           color: 'danger',
+           text: `Dependabot alerts in ${{ github.repository }}:\n${{steps.get-alerts.outputs.alerts}}`,
+           }]
+          }
