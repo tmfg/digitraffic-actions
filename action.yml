@@ -100,10 +100,6 @@ runs:
         SLACK_WEBHOOK_URL: ${{ inputs.SLACK_WEBHOOK_URL }}
       with:
         status: failure
-        custom_payload: |
-          {
-           attachments: [{
-           color: 'danger',
-           text: `Dependabot alerts in ${{ github.repository }}:\n${{steps.get-alerts.outputs.alerts}}`,
-           }]
-          }
+        text: |
+          Dependabot alerts in ${{ github.repository }}:
+          ${{steps.get-alerts.outputs.alerts}}
