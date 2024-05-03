@@ -83,7 +83,7 @@ runs:
             if len(alerts) > 0:
                 output_string = "\n".join(
                     [
-                        f'{alert["summary"]} ({alert["severity"]}): {(alert["url"])}'
+                        f'{alert["summary"]} (*{alert["severity"]}*): {(alert["url"])}'
                         for alert in alerts
                     ]
                 )
@@ -100,6 +100,7 @@ runs:
         SLACK_WEBHOOK_URL: ${{ inputs.SLACK_WEBHOOK_URL }}
       with:
         status: failure
+        fields: repo, job, took
         text: |
-          Dependabot alerts in ${{ github.repository }}:
+          *Dependabot alerts:*
           ${{steps.get-alerts.outputs.alerts}}
