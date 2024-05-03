@@ -61,7 +61,7 @@ runs:
                 [
                     {
                         "summary": alert["security_advisory"]["summary"],
-                        "url": alert["url"],
+                        "url": alert["html_url"],
                         "severity": alert["security_advisory"]["severity"],
                     }
                     for alert in response.json()
@@ -71,7 +71,7 @@ runs:
                 else [
                     {
                         "summary": alert["security_advisory"]["summary"],
-                        "url": alert["url"],
+                        "url": alert["html_url"],
                         "severity": alert["security_advisory"]["severity"],
                     }
                     for alert in response.json()
