@@ -99,6 +99,7 @@ runs:
       env:
         SLACK_WEBHOOK_URL: ${{ inputs.SLACK_WEBHOOK_URL }}
       with:
+        status: failure
         custom_payload: |
           {
            attachments: [{
