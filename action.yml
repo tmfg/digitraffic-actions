@@ -23,8 +23,7 @@ runs:
       shell: python
       env:
         TOKEN: ${{ inputs.TOKEN }}
-        GITHUB_REPO_OWNER: ${{ github.repository_owner }}
-        GITHUB_REPO: ${{ github.repository }}
+        REPOSITORY: ${{ github.repository }}
         OUTPUT_KEY: alerts
         CRITICAL_ONLY: ${{ inputs.CRITICAL_ONLY }}
       run: |
@@ -34,8 +33,7 @@ runs:
         import sys
 
         GITHUB_TOKEN = os.getenv("TOKEN")
-        GITHUB_REPO_OWNER = os.getenv("GITHUB_REPO_OWNER")
-        GITHUB_REPO = os.getenv("GITHUB_REPO")
+        REPOSITORY = os.getenv("REPOSITORY")
         CRITICAL_ONLY = os.getenv("CRITICAL_ONLY")
         OUTPUT_KEY = os.getenv("OUTPUT_KEY")
 
@@ -54,7 +52,7 @@ runs:
         }
 
         response = requests.get(
-            f"https://api.github.com/repos/{GITHUB_REPO_OWNER}/{GITHUB_REPO}/dependabot/alerts",
+            f"https://api.github.com/repos/{REPOSITORY}/dependabot/alerts",
             headers=headers,
         )
 
