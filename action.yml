@@ -94,6 +94,7 @@ runs:
             print(f"Getting Dependabot alerts failed with status code {response.status_code}")
 
     - name: test output
+      if: failure()
       env:
         ALERT_LIST: ${{steps.get-alerts.outputs.alerts}}
       shell: python
