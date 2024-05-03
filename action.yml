@@ -83,7 +83,7 @@ runs:
             if len(alerts) > 0:
                 output_string = "\n".join(
                     [
-                        f'{alert["severity"]}: {alert["summary"]} {(alert["url"])}'
+                        f'{alert["summary"]} ({alert["severity"]}): {alert["url"]}'
                         for alert in alerts
                     ]
                 )
