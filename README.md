@@ -31,5 +31,7 @@ jobs:
 
 [Build and publish a Hugo generated site on GitHub Pages](https://github.com/tmfg/digitraffic-actions/tree/publish-hugo-site/v1)
 
+[Send Slack notifications of Dependabot alerts](https://github.com/tmfg/digitraffic-actions/tree/dependabot-slack/v1)
+
 
 
