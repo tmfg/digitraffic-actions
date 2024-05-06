@@ -8,10 +8,22 @@ inputs:
   SLACK_WEBHOOK_URL:
     required: true
     description: Slack notification target
-  CRITICAL_ONLY:
+  CRITICAL:
     required: false
-    default: "false"
-    description: Send notification only for alerts of critical severity
+    default: "true"
+    description: Send notification for alerts of critical severity
+  HIGH:
+    required: false
+    default: "true"
+    description: Send notification for alerts of high severity
+  MEDIUM:
+    required: false
+    default: "true"
+    description: Send notification for alerts of medium severity
+  LOW:
+    required: false
+    default: "true"
+    description: Send notification for alerts of low severity
 
 runs:
   using: composite
@@ -34,8 +46,14 @@ runs:
 
         GITHUB_TOKEN = os.getenv("TOKEN")
         REPOSITORY = os.getenv("REPOSITORY")
-        CRITICAL_ONLY = os.getenv("CRITICAL_ONLY")
         OUTPUT_KEY = os.getenv("OUTPUT_KEY")
+
+        severities = (
+            "critical" if os.getenv("CRITICAL", "true").lower() == "true" else None,
+            "high" if os.getenv("HIGH", "true").lower() == "true" else None,
+            "medium" if os.getenv("MEDIUM", "true").lower() == "true" else None,
+            "low" if os.getenv("LOW", "true").lower() == "true" else None,
+        )
 
 
         def set_multiline_output(name, value):
@@ -50,35 +68,23 @@ runs:
             "Authorization": f"Bearer {GITHUB_TOKEN}",
             "Accept": "application/vnd.github+json",
         }
-
         response = requests.get(
             f"https://api.github.com/repos/{REPOSITORY}/dependabot/alerts",
             headers=headers,
         )
 
+
         if response.status_code == 200:
-            alerts = (
-                [
-                    {
-                        "summary": alert["security_advisory"]["summary"],
-                        "url": alert["html_url"],
-                        "severity": alert["security_advisory"]["severity"],
-                    }
-                    for alert in response.json()
-                    if alert["state"] == "open"
-                ]
-                if not CRITICAL_ONLY == "true"
-                else [
-                    {
-                        "summary": alert["security_advisory"]["summary"],
-                        "url": alert["html_url"],
-                        "severity": alert["security_advisory"]["severity"],
-                    }
-                    for alert in response.json()
-                    if alert["state"] == "open"
-                    and alert["security_advisory"]["severity"] == "critical"
-                ]
-            )
+            alerts = [
+                {
+                    "summary": alert["security_advisory"]["summary"],
+                    "url": alert["html_url"],
+                    "severity": alert["security_advisory"]["severity"],
+                }
+                for alert in response.json()
+                if alert["state"] == "open"
+                and alert["security_advisory"]["severity"] in severities
+            ]
 
             if len(alerts) > 0:
                 output_string = "\n".join(
@@ -89,7 +95,6 @@ runs:
                 )
                 set_multiline_output(OUTPUT_KEY, output_string)
                 sys.exit(1)
-
         else:
             print(f"Getting Dependabot alerts failed with status code {response.status_code}")
 
