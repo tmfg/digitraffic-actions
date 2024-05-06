@@ -1,35 +1,40 @@
-# Digitraffic custom github actions
+# dependabot-slack/v1
 
-Project contains custom github actions for use with Digitraffic project.
+Sends a Slack notification containing a listing of currently open Dependabot alerts of given severity level(s) in the repository where the action is run.
 
-Actions are stored in their own branches and thus the main branch doesn't contain any action code.
+Uses https://github.com/marketplace/actions/action-slack
 
 ## Usage
 
-Refer to this project and appropriate branch in your workflow file:
+### Prerequisites
 
-```yaml
+1. A GitHub Personal Access Token with permissions to access the Dependabot alerts for the target repository via the GitHub API.
+
+2. A Slack webhook for posting the notification.
+
+### Example
+
+Run on a schedule and send a Slack notification if alerts of `critical` or `high` severity are found:
+
+```yml
+# Deployment to GitHub Pages requires these GITHUB_TOKEN permissions
+name: Check Dependabot alerts and notify Slack
+
+on:
+  schedule:
+    - cron: "0 6,9,12 * * *"
+
 jobs:
-  Run-action:
+  check_alerts_and_notify_slack:
     runs-on: ubuntu-latest
     steps:
-      - name: run action
-        uses: tmfg/digitraffic-actions@<action-branch>
+      - name: Check Dependabot alerts
+        uses: tmfg/digitraffic-actions@dependabot-slack/v1
+        with:
+          TOKEN: ${{ secrets.DEPENDABOT_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          CRITICAL: "true"
+          HIGH: "true"
+          MEDIUM: "false"
+          LOW: "false"
 ```
-
-## Available actions
-
-[Run task in ECS](https://github.com/tmfg/digitraffic-actions/tree/ecs-run-task/v1)
-
-[Update ECS task definition](https://github.com/tmfg/digitraffic-actions/tree/update-task-def/v1)
-
-[Update ECS service](https://github.com/tmfg/digitraffic-actions/tree/ecs-service-update/v1)
-
-[Mirror repository](https://github.com/tmfg/digitraffic-actions/tree/mirror/v1)
-
-[Publish workflow artifacts on GitHub Pages](https://github.com/tmfg/digitraffic-actions/tree/gh-pages-publish/v1)
-
-[Build and publish a Hugo generated site on GitHub Pages](https://github.com/tmfg/digitraffic-actions/tree/publish-hugo-site/v1)
-
-
-

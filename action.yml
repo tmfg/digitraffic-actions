@@ -71,11 +71,11 @@ runs:
             "Authorization": f"Bearer {GITHUB_TOKEN}",
             "Accept": "application/vnd.github+json",
         }
+
         response = requests.get(
             f"https://api.github.com/repos/{REPOSITORY}/dependabot/alerts",
             headers=headers,
         )
-
 
         if response.status_code == 200:
             alerts = [
@@ -98,6 +98,7 @@ runs:
                 )
                 set_multiline_output(OUTPUT_KEY, output_string)
                 sys.exit(1)
+                
         else:
             print(f"Getting Dependabot alerts failed with status code {response.status_code}")
 
