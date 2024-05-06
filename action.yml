@@ -37,7 +37,10 @@ runs:
         TOKEN: ${{ inputs.TOKEN }}
         REPOSITORY: ${{ github.repository }}
         OUTPUT_KEY: alerts
-        CRITICAL_ONLY: ${{ inputs.CRITICAL_ONLY }}
+        CRITICAL: ${{ inputs.CRITICAL }}
+        HIGH: ${{ inputs.HIGH }}
+        MEDIUM: ${{ inputs.MEDIUM }}
+        LOW: ${{ inputs.LOW }}
       run: |
         import os
         import requests
