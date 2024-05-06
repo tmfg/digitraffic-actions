@@ -17,7 +17,6 @@ Uses https://github.com/marketplace/actions/action-slack
 Run on a schedule and send a Slack notification if alerts of `critical` or `high` severity are found:
 
 ```yml
-# Deployment to GitHub Pages requires these GITHUB_TOKEN permissions
 name: Check Dependabot alerts and notify Slack
 
 on:
