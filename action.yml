@@ -92,7 +92,7 @@ runs:
             if len(alerts) > 0:
                 output_string = "\n".join(
                     [
-                        f'{alert["summary"]} (*{alert["severity"].upper()}*): {(alert["url"])}'
+                        f'{alert["summary"]} (*{alert["severity"].upper()}*): {alert["url"]}'
                         for alert in alerts
                     ]
                 )
@@ -113,4 +113,4 @@ runs:
         fields: repo, job
         text: |
           *Dependabot alerts:*
-          ${{steps.get-alerts.outputs.alerts}}
+          ${{ steps.get-alerts.outputs.alerts }}
