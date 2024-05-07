@@ -110,7 +110,7 @@ runs:
         SLACK_WEBHOOK_URL: ${{ inputs.SLACK_WEBHOOK_URL }}
       with:
         status: failure
-        fields: repo, job, took
+        fields: repo, job
         text: |
           *Dependabot alerts:*
           ${{steps.get-alerts.outputs.alerts}}
