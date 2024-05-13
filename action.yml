@@ -98,6 +98,8 @@ runs:
                 )
                 set_multiline_output(OUTPUT_KEY, output_string)
                 sys.exit(1)
+            else:
+              print(f"No alerts found where severity is one of: {tuple(severity for severity in severities if severity is not None)}")
         
         else:
             print(f"Getting Dependabot alerts failed with status code {response.status_code}")
