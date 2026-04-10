@@ -1,0 +1,132 @@
+name: 'Notify Slack'
+description: >
+  Send a colour-coded Slack notification via Incoming Webhook.
+  Drop-in replacement for the deprecated 8398a7/action-slack action,
+  covering the subset of features used in Digitraffic workflows.
+
+inputs:
+  status:
+    description: 'Job status: success, failure, or cancelled'
+    required: true
+  text:
+    description: 'Main message text (supports Slack mrkdwn)'
+    required: true
+  fields:
+    description: >
+      Comma-separated metadata fields to include.
+      Supported: repo, job, took, workflowRun
+    required: false
+    default: ''
+  job_name:
+    description: 'Override the job name shown in the "Job" field (defaults to github.job)'
+    required: false
+    default: ''
+  webhook-url:
+    description: 'Slack Incoming Webhook URL'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Build and send Slack notification
+      shell: bash
+      env:
+        INPUT_STATUS: ${{ inputs.status }}
+        INPUT_TEXT: ${{ inputs.text }}
+        INPUT_FIELDS: ${{ inputs.fields }}
+        INPUT_JOB_NAME: ${{ inputs.job_name }}
+        INPUT_WEBHOOK_URL: ${{ inputs.webhook-url }}
+        GH_REPOSITORY: ${{ github.repository }}
+        GH_JOB: ${{ github.job }}
+        GH_SERVER_URL: ${{ github.server_url }}
+        GH_RUN_ID: ${{ github.run_id }}
+        GH_WORKFLOW: ${{ github.workflow }}
+      run: |
+        # --- Determine colour from status ---
+        case "$INPUT_STATUS" in
+          success)   COLOR="#2eb886" ;;
+          failure)   COLOR="#a30200" ;;
+          cancelled) COLOR="#cccccc" ;;
+          *)         COLOR="#cccccc" ;;
+        esac
+
+        # --- Resolve job name ---
+        JOB_NAME="${INPUT_JOB_NAME:-$GH_JOB}"
+
+        # --- Build fields JSON array ---
+        FIELDS="[]"
+        if [ -n "$INPUT_FIELDS" ]; then
+          RUN_URL="${GH_SERVER_URL}/${GH_REPOSITORY}/actions/runs/${GH_RUN_ID}"
+
+          FIELDS="["
+          FIRST=true
+          IFS=',' read -ra FIELD_LIST <<< "$INPUT_FIELDS"
+          for RAW_FIELD in "${FIELD_LIST[@]}"; do
+            FIELD="$(echo "$RAW_FIELD" | xargs)"  # trim whitespace
+            case "$FIELD" in
+              repo)
+                TITLE="Repository"
+                VALUE="<${GH_SERVER_URL}/${GH_REPOSITORY}|${GH_REPOSITORY}>"
+                ;;
+              job)
+                TITLE="Job"
+                VALUE="$JOB_NAME"
+                ;;
+              took)
+                TITLE="Took"
+                # Compute approximate elapsed time using /proc/uptime (Linux runner)
+                if [ -r /proc/uptime ]; then
+                  UPTIME_SECS=$(awk '{printf "%d", $1}' /proc/uptime)
+                  MINS=$((UPTIME_SECS / 60))
+                  SECS=$((UPTIME_SECS % 60))
+                  if [ "$MINS" -gt 0 ]; then
+                    VALUE="${MINS}m ${SECS}s"
+                  else
+                    VALUE="${SECS}s"
+                  fi
+                else
+                  VALUE="N/A"
+                fi
+                ;;
+              workflowRun)
+                TITLE="Workflow"
+                VALUE="<${RUN_URL}|${GH_WORKFLOW}>"
+                ;;
+              *)
+                continue
+                ;;
+            esac
+
+            if [ "$FIRST" = true ]; then
+              FIRST=false
+            else
+              FIELDS="${FIELDS},"
+            fi
+            FIELDS="${FIELDS}{\"title\":\"${TITLE}\",\"value\":\"${VALUE}\",\"short\":true}"
+          done
+          FIELDS="${FIELDS}]"
+        fi
+
+        # --- Build payload using jq for safe JSON encoding ---
+        PAYLOAD=$(jq -n \
+          --arg color "$COLOR" \
+          --arg text "$INPUT_TEXT" \
+          --argjson fields "$FIELDS" \
+          '{ attachments: [{ color: $color, text: $text, fields: $fields }] }')
+
+        echo "::group::Slack payload"
+        echo "$PAYLOAD" | jq .
+        echo "::endgroup::"
+
+        # --- Send to Slack ---
+        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+          -X POST \
+          -H "Content-Type: application/json" \
+          -d "$PAYLOAD" \
+          "$INPUT_WEBHOOK_URL")
+
+        if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+          echo "Slack notification sent successfully (HTTP ${HTTP_CODE})"
+        else
+          echo "::warning::Slack notification failed with HTTP ${HTTP_CODE}"
+        fi

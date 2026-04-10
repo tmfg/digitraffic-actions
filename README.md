@@ -1,37 +1,58 @@
-# Digitraffic custom github actions
+# Notify Slack
 
-Project contains custom github actions for use with Digitraffic project.
+Send a colour-coded Slack notification via [Incoming Webhook](https://api.slack.com/messaging/webhooks).
 
-Actions are stored in their own branches and thus the main branch doesn't contain any action code.
+Drop-in replacement for the deprecated [`8398a7/action-slack`](https://github.com/8398a7/action-slack) action, covering the subset of features used in Digitraffic workflows. Zero external dependencies — uses only `curl` and `jq` (both pre-installed on GitHub-hosted runners).
 
 ## Usage
 
-Refer to this project and appropriate branch in your workflow file:
-
 ```yaml
-jobs:
-  Run-action:
-    runs-on: ubuntu-latest
-    steps:
-      - name: run action
-        uses: tmfg/digitraffic-actions@<action-branch>
+- name: Notify Slack
+  if: failure()
+  uses: tmfg/digitraffic-actions@slack-notify/v1
+  with:
+    status: failure
+    text: FAILED My Workflow
+    fields: repo, job, took
+    webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
 ```
 
-## Available actions
+## Inputs
 
-[Run task in ECS](https://github.com/tmfg/digitraffic-actions/tree/ecs-run-task/v1)
+| Input | Required | Default | Description |
+|---|---|---|---|
+| `status` | **yes** | | Job status: `success`, `failure`, or `cancelled`. Determines the attachment colour (green / red / grey). |
+| `text` | **yes** | | Main message text (supports Slack mrkdwn). |
+| `fields` | no | `''` | Comma-separated metadata fields to show below the text. Supported: `repo`, `job`, `took`, `workflowRun`. |
+| `job_name` | no | `github.job` | Override the job name shown in the `job` field. |
+| `webhook-url` | **yes** | | Slack Incoming Webhook URL. |
 
-[Update ECS task definition](https://github.com/tmfg/digitraffic-actions/tree/update-task-def/v1)
+## Migration from `8398a7/action-slack`
 
-[Update ECS service](https://github.com/tmfg/digitraffic-actions/tree/ecs-service-update/v1)
+Replace:
 
-[Mirror repository](https://github.com/tmfg/digitraffic-actions/tree/mirror/v1)
+```yaml
+- uses: 8398a7/action-slack@v3
+  with:
+    status: failure
+    text: FAILED My Workflow
+    fields: repo, job, took
+  env:
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+```
 
-[Publish workflow artifacts on GitHub Pages](https://github.com/tmfg/digitraffic-actions/tree/gh-pages-publish/v1)
+With:
 
-[Build and publish a Hugo generated site on GitHub Pages](https://github.com/tmfg/digitraffic-actions/tree/publish-hugo-site/v1)
+```yaml
+- uses: tmfg/digitraffic-actions@slack-notify/v1
+  with:
+    status: failure
+    text: FAILED My Workflow
+    fields: repo, job, took
+    webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+```
 
-[Send Slack notifications of Dependabot alerts](https://github.com/tmfg/digitraffic-actions/tree/dependabot-slack/v1)
-
-
-
+Key differences:
+- The webhook URL is now an **input** (`webhook-url`) instead of an environment variable (`SLACK_WEBHOOK_URL`).
+- The `job_name` input works the same way.
+- The `took` field uses runner uptime as an approximation (the runner VM is created fresh per job, so uptime ≈ job duration).
