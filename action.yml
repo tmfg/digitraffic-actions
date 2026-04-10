@@ -41,7 +41,6 @@ runs:
         GH_JOB: ${{ github.job }}
         GH_SERVER_URL: ${{ github.server_url }}
         GH_RUN_ID: ${{ github.run_id }}
-        GH_RUN_NUMBER: ${{ github.run_number }}
         GH_WORKFLOW: ${{ github.workflow }}
         GH_API_URL: ${{ github.api_url }}
       run: |
@@ -83,11 +82,12 @@ runs:
           if (fieldNames.length === 0) return [];
 
           const jobName = env.INPUT_JOB_NAME || env.GH_JOB;
+          const runUrl = `${env.GH_SERVER_URL}/${env.GH_REPOSITORY}/actions/runs/${env.GH_RUN_ID}`;
           const took = fieldNames.includes("took") ? await fetchRunDuration() : undefined;
 
           const allFields = {
             repo:        { title: "Repository", value: `<${env.GH_SERVER_URL}/${env.GH_REPOSITORY}|${env.GH_REPOSITORY}>` },
-            job:         { title: "Job", value: jobName },
+            job:         { title: "Job", value: `<${runUrl}|${jobName}>` },
             took:        { title: "Took", value: took },
           };
 
@@ -99,13 +99,11 @@ runs:
         async function main() {
           const color = STATUS_COLORS[env.INPUT_STATUS] ?? "#cccccc";
           const fields = await buildFields();
-          const runUrl = `${env.GH_SERVER_URL}/${env.GH_REPOSITORY}/actions/runs/${env.GH_RUN_ID}`;
-          const text = `${env.INPUT_TEXT}\n<${runUrl}|${env.GH_WORKFLOW} #${env.GH_RUN_NUMBER}>`;
 
           const payload = {
             attachments: [{
               color,
-              text,
+              text: env.INPUT_TEXT,
               fields,
             }],
           };
