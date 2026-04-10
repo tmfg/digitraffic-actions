@@ -44,98 +44,90 @@ runs:
         GH_WORKFLOW: ${{ github.workflow }}
         GH_API_URL: ${{ github.api_url }}
       run: |
-        # --- Determine colour from status ---
-        case "$INPUT_STATUS" in
-          success)   COLOR="#2eb886" ;;
-          failure)   COLOR="#a30200" ;;
-          cancelled) COLOR="#cccccc" ;;
-          *)         COLOR="#cccccc" ;;
-        esac
+        node <<'SCRIPT'
+        const env = process.env;
 
-        # --- Resolve job name ---
-        JOB_NAME="${INPUT_JOB_NAME:-$GH_JOB}"
+        const STATUS_COLORS = {
+          success:   "#2eb886",
+          failure:   "#a30200",
+          cancelled: "#cccccc",
+        };
 
-        # --- Build fields JSON array ---
-        FIELDS="[]"
-        if [ -n "$INPUT_FIELDS" ]; then
-          RUN_URL="${GH_SERVER_URL}/${GH_REPOSITORY}/actions/runs/${GH_RUN_ID}"
+        function formatDuration(seconds) {
+          const mins = Math.floor(seconds / 60);
+          const secs = seconds % 60;
+          return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+        }
 
-          FIELDS="["
-          FIRST=true
-          IFS=',' read -ra FIELD_LIST <<< "$INPUT_FIELDS"
-          for RAW_FIELD in "${FIELD_LIST[@]}"; do
-            FIELD="$(echo "$RAW_FIELD" | xargs)"  # trim whitespace
-            case "$FIELD" in
-              repo)
-                TITLE="Repository"
-                VALUE="<${GH_SERVER_URL}/${GH_REPOSITORY}|${GH_REPOSITORY}>"
-                ;;
-              job)
-                TITLE="Job"
-                VALUE="$JOB_NAME"
-                ;;
-              took)
-                TITLE="Took"
-                # Fetch run_started_at from GitHub API to compute total workflow duration
-                STARTED_AT=$(curl -s \
-                  -H "Authorization: Bearer $GH_TOKEN" \
-                  -H "Accept: application/vnd.github+json" \
-                  "${GH_API_URL}/repos/${GH_REPOSITORY}/actions/runs/${GH_RUN_ID}" \
-                  | jq -r '.run_started_at // empty')
-                if [ -n "$STARTED_AT" ]; then
-                  START_EPOCH=$(date -d "$STARTED_AT" +%s 2>/dev/null || date -jf "%Y-%m-%dT%H:%M:%SZ" "$STARTED_AT" +%s 2>/dev/null)
-                  NOW_EPOCH=$(date +%s)
-                  ELAPSED=$((NOW_EPOCH - START_EPOCH))
-                  MINS=$((ELAPSED / 60))
-                  SECS=$((ELAPSED % 60))
-                  if [ "$MINS" -gt 0 ]; then
-                    VALUE="${MINS}m ${SECS}s"
-                  else
-                    VALUE="${SECS}s"
-                  fi
-                else
-                  VALUE="N/A"
-                fi
-                ;;
-              workflowRun)
-                TITLE="Workflow"
-                VALUE="<${RUN_URL}|${GH_WORKFLOW}>"
-                ;;
-              *)
-                continue
-                ;;
-            esac
+        async function fetchRunDuration() {
+          try {
+            const url = `${env.GH_API_URL}/repos/${env.GH_REPOSITORY}/actions/runs/${env.GH_RUN_ID}`;
+            const res = await fetch(url, {
+              headers: {
+                "Authorization": `Bearer ${env.GH_TOKEN}`,
+                "Accept": "application/vnd.github+json",
+              },
+            });
+            const { run_started_at } = await res.json();
+            if (!run_started_at) return "N/A";
 
-            if [ "$FIRST" = true ]; then
-              FIRST=false
-            else
-              FIELDS="${FIELDS},"
-            fi
-            FIELDS="${FIELDS}{\"title\":\"${TITLE}\",\"value\":\"${VALUE}\",\"short\":true}"
-          done
-          FIELDS="${FIELDS}]"
-        fi
+            const elapsed = Math.round((Date.now() - new Date(run_started_at).getTime()) / 1000);
+            return formatDuration(elapsed);
+          } catch {
+            return "N/A";
+          }
+        }
 
-        # --- Build payload using jq for safe JSON encoding ---
-        PAYLOAD=$(jq -n \
-          --arg color "$COLOR" \
-          --arg text "$INPUT_TEXT" \
-          --argjson fields "$FIELDS" \
-          '{ attachments: [{ color: $color, text: $text, fields: $fields }] }')
+        async function buildFields() {
+          const fieldNames = env.INPUT_FIELDS.split(",").map(f => f.trim()).filter(Boolean);
+          if (fieldNames.length === 0) return [];
 
-        echo "::group::Slack payload"
-        echo "$PAYLOAD" | jq .
-        echo "::endgroup::"
+          const runUrl = `${env.GH_SERVER_URL}/${env.GH_REPOSITORY}/actions/runs/${env.GH_RUN_ID}`;
+          const jobName = env.INPUT_JOB_NAME || env.GH_JOB;
 
-        # --- Send to Slack ---
-        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-          -X POST \
-          -H "Content-Type: application/json" \
-          -d "$PAYLOAD" \
-          "$INPUT_WEBHOOK_URL")
+          const fieldBuilders = {
+            repo:        () => ({ title: "Repository", value: `<${env.GH_SERVER_URL}/${env.GH_REPOSITORY}|${env.GH_REPOSITORY}>` }),
+            job:         () => ({ title: "Job", value: jobName }),
+            took:        async () => ({ title: "Took", value: await fetchRunDuration() }),
+            workflowRun: () => ({ title: "Workflow", value: `<${runUrl}|${env.GH_WORKFLOW}>` }),
+          };
 
-        if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
-          echo "Slack notification sent successfully (HTTP ${HTTP_CODE})"
-        else
-          echo "::warning::Slack notification failed with HTTP ${HTTP_CODE}"
-        fi
+          const fields = [];
+          for (const name of fieldNames) {
+            const builder = fieldBuilders[name];
+            if (builder) fields.push({ ...await builder(), short: true });
+          }
+          return fields;
+        }
+
+        async function main() {
+          const color = STATUS_COLORS[env.INPUT_STATUS] ?? "#cccccc";
+          const fields = await buildFields();
+
+          const payload = {
+            attachments: [{
+              color,
+              text: env.INPUT_TEXT,
+              fields,
+            }],
+          };
+
+          console.log("::group::Slack payload");
+          console.log(JSON.stringify(payload, null, 2));
+          console.log("::endgroup::");
+
+          const res = await fetch(env.INPUT_WEBHOOK_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (res.ok) {
+            console.log(`Slack notification sent successfully (HTTP ${res.status})`);
+          } else {
+            console.log(`::warning::Slack notification failed with HTTP ${res.status}`);
+          }
+        }
+
+        main();
+        SCRIPT
