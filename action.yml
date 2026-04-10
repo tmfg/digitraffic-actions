@@ -6,7 +6,7 @@ description: >
 
 inputs:
   status:
-    description: 'Job status: success, failure, or cancelled'
+    description: 'Job status: success or failure'
     required: true
   text:
     description: 'Main message text (supports Slack mrkdwn)'
@@ -48,9 +48,8 @@ runs:
         const env = process.env;
 
         const STATUS_COLORS = {
-          success:   "#2eb886",
-          failure:   "#a30200",
-          cancelled: "#cccccc",
+          success: "#2eb886",
+          failure: "#a30200",
         };
 
         function formatDuration(seconds) {
@@ -84,20 +83,18 @@ runs:
 
           const runUrl = `${env.GH_SERVER_URL}/${env.GH_REPOSITORY}/actions/runs/${env.GH_RUN_ID}`;
           const jobName = env.INPUT_JOB_NAME || env.GH_JOB;
+          const took = fieldNames.includes("took") ? await fetchRunDuration() : undefined;
 
-          const fieldBuilders = {
-            repo:        () => ({ title: "Repository", value: `<${env.GH_SERVER_URL}/${env.GH_REPOSITORY}|${env.GH_REPOSITORY}>` }),
-            job:         () => ({ title: "Job", value: jobName }),
-            took:        async () => ({ title: "Took", value: await fetchRunDuration() }),
-            workflowRun: () => ({ title: "Workflow", value: `<${runUrl}|${env.GH_WORKFLOW}>` }),
+          const allFields = {
+            repo:        { title: "Repository", value: `<${env.GH_SERVER_URL}/${env.GH_REPOSITORY}|${env.GH_REPOSITORY}>` },
+            job:         { title: "Job", value: jobName },
+            took:        { title: "Took", value: took },
+            workflowRun: { title: "Workflow", value: `<${runUrl}|${env.GH_WORKFLOW}>` },
           };
 
-          const fields = [];
-          for (const name of fieldNames) {
-            const builder = fieldBuilders[name];
-            if (builder) fields.push({ ...await builder(), short: true });
-          }
-          return fields;
+          return fieldNames
+            .filter(name => allFields[name])
+            .map(name => ({ ...allFields[name], short: true }));
         }
 
         async function main() {
