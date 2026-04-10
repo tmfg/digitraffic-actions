@@ -1,8 +1,8 @@
-# Digitraffic custom github actions
+# digitraffic-actions
 
-Project contains custom github actions for use with Digitraffic project.
+Project contains custom Github actions for use in Digitraffic projects.
 
-Actions are stored in their own branches and thus the main branch doesn't contain any action code.
+Actions are stored in their own branches - the main branch doesn't contain any action code.
 
 ## Usage
 
@@ -32,6 +32,8 @@ jobs:
 [Build and publish a Hugo generated site on GitHub Pages](https://github.com/tmfg/digitraffic-actions/tree/publish-hugo-site/v1)
 
 [Send Slack notifications of Dependabot alerts](https://github.com/tmfg/digitraffic-actions/tree/dependabot-slack/v1)
+
+[Send Slack notifications](https://github.com/tmfg/digitraffic-actions/tree/slack-notify/v1)
 
 
 
