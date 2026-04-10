@@ -1,6 +1,6 @@
 # Notify Slack
 
-Send a colour-coded Slack notification via [Incoming Webhook](https://api.slack.com/messaging/webhooks).
+Send a colour-coded Slack notification via [Incoming Webhook](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/).
 
 Drop-in replacement for the deprecated [`8398a7/action-slack`](https://github.com/8398a7/action-slack) action, covering the subset of features used in Digitraffic workflows. Zero external dependencies — uses only Node.js (pre-installed on GitHub-hosted runners).
 
