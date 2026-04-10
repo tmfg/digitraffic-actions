@@ -14,7 +14,7 @@ inputs:
   fields:
     description: >
       Comma-separated metadata fields to include.
-      Supported: repo, job, took, workflowRun
+      Supported: repo, job, took
     required: false
     default: ''
   job_name:
@@ -41,6 +41,7 @@ runs:
         GH_JOB: ${{ github.job }}
         GH_SERVER_URL: ${{ github.server_url }}
         GH_RUN_ID: ${{ github.run_id }}
+        GH_RUN_NUMBER: ${{ github.run_number }}
         GH_WORKFLOW: ${{ github.workflow }}
         GH_API_URL: ${{ github.api_url }}
       run: |
@@ -81,7 +82,6 @@ runs:
           const fieldNames = env.INPUT_FIELDS.split(",").map(f => f.trim()).filter(Boolean);
           if (fieldNames.length === 0) return [];
 
-          const runUrl = `${env.GH_SERVER_URL}/${env.GH_REPOSITORY}/actions/runs/${env.GH_RUN_ID}`;
           const jobName = env.INPUT_JOB_NAME || env.GH_JOB;
           const took = fieldNames.includes("took") ? await fetchRunDuration() : undefined;
 
@@ -89,7 +89,6 @@ runs:
             repo:        { title: "Repository", value: `<${env.GH_SERVER_URL}/${env.GH_REPOSITORY}|${env.GH_REPOSITORY}>` },
             job:         { title: "Job", value: jobName },
             took:        { title: "Took", value: took },
-            workflowRun: { title: "Workflow", value: `<${runUrl}|${env.GH_WORKFLOW}>` },
           };
 
           return fieldNames
@@ -100,11 +99,13 @@ runs:
         async function main() {
           const color = STATUS_COLORS[env.INPUT_STATUS] ?? "#cccccc";
           const fields = await buildFields();
+          const runUrl = `${env.GH_SERVER_URL}/${env.GH_REPOSITORY}/actions/runs/${env.GH_RUN_ID}`;
+          const text = `${env.INPUT_TEXT}\n<${runUrl}|${env.GH_WORKFLOW} #${env.GH_RUN_NUMBER}>`;
 
           const payload = {
             attachments: [{
               color,
-              text: env.INPUT_TEXT,
+              text,
               fields,
             }],
           };
