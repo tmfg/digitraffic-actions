@@ -17,13 +17,16 @@ Drop-in replacement for the deprecated [`8398a7/action-slack`](https://github.co
     webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
 ```
 
+> [!NOTE]
+> The `took` field is resolved via the GitHub Actions Runs API. If your workflow uses default token permissions, this request can return `403` unless you grant `permissions: actions: read` (or broader). Without that permission, `took` may be unavailable and show as `N/A`.
+
 ## Inputs
 
 | Input | Required | Default | Description |
 |---|---|---|---|
 | `status` | **yes** | | Job status: `success` or `failure`. Determines the attachment colour (green / red). |
 | `text` | **yes** | | Main message text (supports Slack mrkdwn). |
-| `fields` | no | `''` | Comma-separated metadata fields to show below the text. Supported: `repo`, `job`, `took`, `workflowRun`. |
+| `fields` | no | `''` | Comma-separated metadata fields to show below the text. Supported: `repo`, `job`, `took`, `workflowRun`. The `took` field requires access to the GitHub Actions Runs API; grant `permissions: actions: read` (or broader) or it may be unavailable and show as `N/A`. |
 | `job_name` | no | `github.job` | Override the job name shown in the `job` field. |
 | `webhook-url` | **yes** | | Slack Incoming Webhook URL. |
 
