@@ -122,9 +122,12 @@ runs:
           if (res.ok) {
             console.log(`Slack notification sent successfully (HTTP ${res.status})`);
           } else {
-            console.log(`::warning::Slack notification failed with HTTP ${res.status}`);
+            throw new Error(`Slack notification failed with HTTP ${res.status}`);
           }
         }
 
-        main();
+         main().catch((error) => {
+           console.error("Slack notification failed:", error);
+           process.exitCode = 1;
+         });
         SCRIPT
