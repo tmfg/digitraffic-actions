@@ -105,14 +105,14 @@ runs:
             print(f"Getting Dependabot alerts failed with status code {response.status_code}")
             sys.exit(1)
 
+
     - name: Notify Slack
       if: failure() && steps.get-alerts.outputs.alerts != ''
-      uses: 8398a7/action-slack@v3
-      env:
-        SLACK_WEBHOOK_URL: ${{ inputs.SLACK_WEBHOOK_URL }}
+      uses: tmfg/digitraffic-actions@slack-notify/v1
       with:
         status: failure
         fields: repo, job
         text: |
           *Dependabot alerts:*
           ${{ steps.get-alerts.outputs.alerts }}
+        webhook-url: ${{ inputs.SLACK_WEBHOOK_URL }}
