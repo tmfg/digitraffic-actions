@@ -29,7 +29,7 @@ runs:
   using: composite
   steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     - name: Get Dependabot alerts
       id: get-alerts
       shell: python
@@ -108,7 +108,7 @@ runs:
 
     - name: Notify Slack
       if: failure() && steps.get-alerts.outputs.alerts != ''
-      uses: tmfg/digitraffic-actions@slack-notify/v1
+      uses: tmfg/digitraffic-actions@88cc4d1a9c5cb96c037cb0dec41e1c64804b4d0e # slack-notify/v1
       with:
         status: failure
         fields: repo, job
