@@ -23,7 +23,7 @@ runs:
         echo "::add-mask::${{ inputs.mirror-repo }}"
         echo "DT_MIRROR_REPO=${{ inputs.mirror-repo }}" >> $GITHUB_ENV
       shell: bash
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0
     - uses: webfactory/ssh-agent@v0.9.0
