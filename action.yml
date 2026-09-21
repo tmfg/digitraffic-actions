@@ -35,7 +35,7 @@ runs:
       shell: bash
     - name: Check parameters
       if: inputs.task-definition != '' && inputs.desired-count == '0'
-      uses: actions/github-script@v3
+      uses: actions/github-script@v9
       with:
         script: |
           core.setFailed('When desired-count is 0, you must not specify task-definition!')
