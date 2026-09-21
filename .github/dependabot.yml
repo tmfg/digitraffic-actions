@@ -1,0 +1,92 @@
+version: 2
+
+# Each action is published on its own branch, so Dependabot needs one entry per
+# branch: target-branch selects which branch is read and where the PR is opened.
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "dependabot-slack/v1"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7       # Wait 7 days for any update
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "ecs-run-task/v1"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7       # Wait 7 days for any update
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "ecs-service-update/v1"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7       # Wait 7 days for any update
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "gh-pages-publish/v1"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7       # Wait 7 days for any update
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "mirror/v1"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7       # Wait 7 days for any update
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "mirror/v2"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7       # Wait 7 days for any update
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "mirror/v3"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7       # Wait 7 days for any update
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "publish-hugo-site/v1"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7       # Wait 7 days for any update
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "slack-notify/v1"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7       # Wait 7 days for any update
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "update-task-def/v1"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7       # Wait 7 days for any update
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "update-task-def/v2"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7       # Wait 7 days for any update
