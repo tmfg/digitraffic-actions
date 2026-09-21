@@ -2,6 +2,11 @@ version: 2
 
 # Each action is published on its own branch, so Dependabot needs one entry per
 # branch: target-branch selects which branch is read and where the PR is opened.
+#
+# This list is maintained by hand and must be kept in step with the branches.
+# Publishing a new version branch without adding an entry here leaves that
+# action without dependency updates, and nothing reports it: the branch is
+# simply never checked. Delete the entry when a branch is retired.
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
