@@ -35,12 +35,12 @@ runs:
       shell: bash
     - name: Check parameters
       if: inputs.task-definition != '' && inputs.desired-count == '0'
-      uses: actions/github-script@v3
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       with:
         script: |
           core.setFailed('When desired-count is 0, you must not specify task-definition!')
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
+      uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
       with:
         role-to-assume: ${{ inputs.aws-role }}
         role-session-name: gh-actions-update-ecs-${{ inputs.service-name }}
