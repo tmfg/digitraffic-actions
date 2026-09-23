@@ -42,22 +42,6 @@ updates:
 
   - package-ecosystem: "github-actions"
     directory: "/"
-    target-branch: "mirror/v1"
-    schedule:
-      interval: "monthly"
-    cooldown:
-      default-days: 7       # Wait 7 days for any update
-
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    target-branch: "mirror/v2"
-    schedule:
-      interval: "monthly"
-    cooldown:
-      default-days: 7       # Wait 7 days for any update
-
-  - package-ecosystem: "github-actions"
-    directory: "/"
     target-branch: "mirror/v3"
     schedule:
       interval: "monthly"
@@ -75,14 +59,6 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     target-branch: "slack-notify/v1"
-    schedule:
-      interval: "monthly"
-    cooldown:
-      default-days: 7       # Wait 7 days for any update
-
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    target-branch: "update-task-def/v1"
     schedule:
       interval: "monthly"
     cooldown:
