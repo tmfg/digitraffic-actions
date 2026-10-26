@@ -1,0 +1,29 @@
+name: 'Log workflow inputs'
+description: >
+  Log the caller workflow's inputs and the triggering actor to the job log
+  and to the job summary as a markdown table.
+
+inputs:
+  inputs:
+    description: "Workflow inputs as JSON, i.e. ${{ toJSON(inputs) }} in the caller workflow"
+    required: false
+    default: '{}'
+
+runs:
+  using: composite
+  steps:
+    - name: Log workflow inputs
+      shell: bash
+      env:
+        WORKFLOW_INPUTS: ${{ inputs.inputs }}
+      run: |
+        echo "Workflow inputs:"
+        echo "$WORKFLOW_INPUTS"
+        {
+          echo "## Workflow Inputs"
+          echo "| Name | Value |"
+          echo "|------|-------|"
+          echo "| actor | $GITHUB_ACTOR |"
+          echo "$WORKFLOW_INPUTS" | jq -r 'to_entries[] | "| \(.key) | \(.value | tostring | gsub("\\|"; "\\|") | gsub("\r?\n"; "<br>")) |"'
+          echo ""
+        } >> "$GITHUB_STEP_SUMMARY"
