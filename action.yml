@@ -5,7 +5,7 @@ description: >
 
 inputs:
   inputs:
-    description: "Workflow inputs as JSON, i.e. ${{ toJSON(inputs) }} in the caller workflow"
+    description: "Workflow inputs as a JSON string (the caller's toJSON of inputs)"
     required: false
     default: '{}'
 
