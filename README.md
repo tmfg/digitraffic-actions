@@ -6,7 +6,7 @@ Actions are stored in their own branches - the main branch doesn't contain any a
 
 ## Usage
 
-Refer to this project and appropriate branch in your workflow file:
+Refer to this project in your workflow file, pinned to the full commit SHA of the action branch, with the branch name as a comment:
 
 ```yaml
 jobs:
@@ -14,8 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: run action
-        uses: tmfg/digitraffic-actions@<action-branch>
+        uses: tmfg/digitraffic-actions@<commit-sha> # <action-branch>
 ```
+
+Do not refer to the branch name directly (`@<action-branch>`): branches are mutable, so a SHA is the only way to guarantee that the workflow runs the reviewed version. The SHA of a branch can be found with `git ls-remote https://github.com/tmfg/digitraffic-actions <action-branch>`.
 
 ## Available actions
 
@@ -34,6 +36,8 @@ jobs:
 [Send Slack notifications of Dependabot alerts](https://github.com/tmfg/digitraffic-actions/tree/dependabot-slack/v1)
 
 [Send Slack notifications](https://github.com/tmfg/digitraffic-actions/tree/slack-notify/v1)
+
+[Log workflow inputs](https://github.com/tmfg/digitraffic-actions/tree/log-workflow-inputs/v1)
 
 
 
