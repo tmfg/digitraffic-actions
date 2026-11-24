@@ -15,6 +15,7 @@ Generates and deploys a Hugo site to Github Pages with given configuration file.
 ```yml
 # Deployment to GitHub Pages requires these GITHUB_TOKEN permissions
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
