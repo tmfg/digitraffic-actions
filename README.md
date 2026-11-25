@@ -8,14 +8,12 @@ Generates and deploys a Hugo site to Github Pages with given configuration file.
 
 1. Deployment to GitHub Pages via GitHub Actions must be enabled in your repo
 2. The branch you are deploying from must be allowed to deploy to environment `github-pages` (see https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#creating-a-custom-github-actions-workflow-to-publish-your-site)
-3. The workflow must grant `actions: read` permission so the action can wait for the uploaded artifact to become available before deployment.
 
 ### Example
 
 ```yml
 # Deployment to GitHub Pages requires these GITHUB_TOKEN permissions
 permissions:
-  actions: read
   contents: read
   pages: write
   id-token: write
